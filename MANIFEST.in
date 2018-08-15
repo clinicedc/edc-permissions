@@ -1,0 +1,2 @@
+include AUTHORS CHANGES README LICENSE VERSION
+recursive-include edc_permissions/templates *
