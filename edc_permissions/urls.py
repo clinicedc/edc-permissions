@@ -1,21 +1,23 @@
-"""edc_permissions URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/2.1/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
+from django.conf import settings
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.views.generic.base import RedirectView
+from edc_base.views.administration_view import AdministrationView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', RedirectView.as_view(
+        url='/edc_permissions/admin/'), name='home_url'),
 ]
+
+if settings.APP_NAME == 'edc_permissions':
+    urlpatterns += [
+        path('accounts/', include('edc_auth.urls')),
+        path('edc_base/', include('edc_base.urls')),
+        path('edc_lab/', include('edc_lab.urls')),
+        path('edc_lab_dashboard/', include('edc_lab_dashboard.urls')),
+        path('edc_pharmacy/', include('edc_pharmacy.urls')),
+        # path('edc_pharmacy_dashboard/', include('edc_pharmacy_dashboard.urls')),
+        path('administration/', AdministrationView.as_view(),
+             name='administration_url'),
+    ]

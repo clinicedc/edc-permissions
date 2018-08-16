@@ -1,11 +1,12 @@
 import sys
 
+from django.apps import apps as django_apps
 from django.contrib.auth.models import Group, Permission, User
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from edc_navbar.site_navbars import site_navbars
 
 
-class PermissionsUpdaterError(Exception):
+class PermissionsUpdaterError(ValidationError):
     pass
 
 
@@ -19,37 +20,57 @@ class PermissionsUpdater:
         'LAB',
         'PHARMACY',
         'PII']
-    default_pii_app_labels = ['edc_locator', 'edc_registration']
-    default_pii_models = ['subjectlocator', 'registeredsubject']
+    default_pii_models = [
+        'edc_locator.subjectlocator',
+        'edc_registration.registeredsubject']
     default_auditor_app_labels = ['edc_lab', 'edc_offstudy']
 
     auditor_app_labels = None
     group_names = None
-    pii_app_labels = None
     pii_models = None
 
-    def __init__(self):
-        self.pii_app_labels.extend(self.default_pii_app_labels)
-        self.pii_app_labels = list(set(self.pii_app_labels))
-        self.pii_models.extend(self.default_pii_models)
-        self.pii_models = list(set(self.pii_models))
+    def __init__(self, verbose=None):
 
-        self.auditor_app_labels.extend(self.default_auditor_app_labels)
-        self.auditor_app_labels = list(set(self.auditor_app_labels))
+        self.write = str if verbose is False else sys.stdout.write
 
-        self.group_names.extend(self.default_group_names)
-        self.group_names = list(set(self.group_names))
-        sys.stdout.write('Adding or updating navbar permissions ...\n')
-        site_navbars.update_permission_codes()
-        sys.stdout.write('Adding or updating groups ...\n')
+        if self.pii_models:
+            self.pii_models.extend(self.default_pii_models)
+            self.pii_models = list(set(self.pii_models))
+        else:
+            self.pii_models = self.default_pii_models
+        if self.auditor_app_labels:
+            self.auditor_app_labels.extend(self.default_auditor_app_labels)
+            self.auditor_app_labels = list(set(self.auditor_app_labels))
+        else:
+            self.auditor_app_labels = self.default_auditor_app_labels
+        if self.group_names:
+            self.group_names.extend(self.default_group_names)
+            self.group_names = list(set(self.group_names))
+        else:
+            self.group_names = self.default_group_names
+
+        self.check_app_labels()
+
+        self.write('Adding or updating navbar permissions ...\n')
+        site_navbars.update_permission_codenames(verbose=False)
+        self.write('Adding or updating groups ...\n')
         self.update_groups()
-        sys.stdout.write(
+        self.write(
             f"  Groups are: "
             f"{', '.join([obj.name for obj in Group.objects.all().order_by('name')])}\n")
-        sys.stdout.write('Adding or updating group permissions ...\n')
+        self.write('Adding or updating group permissions ...\n')
         self.update_group_permissions()
-        self.remove_historical_permissions()
-        sys.stdout.write('Done.\n')
+        self.remove_historical_permissions()  # if not view
+        self.write('Done.\n')
+
+    def check_app_labels(self):
+        pii_app_labels = [m.split('.')[0] for m in self.pii_models]
+        for app_labels in [self.auditor_app_labels, pii_app_labels]:
+            for app_label in app_labels:
+                try:
+                    django_apps.get_app_config(app_label)
+                except LookupError as e:
+                    raise PermissionsUpdaterError(e, code='lookup')
 
     def extra_auditor_group_permissions(self, group):
         """Override for custom group permissions.
@@ -72,18 +93,19 @@ class PermissionsUpdater:
     def update_group_permissions(self):
         for group_name in self.default_group_names:
             expression = f'update_{group_name.lower()}_group_permissions'
-            sys.stdout.write(f' * adding permissions to group {group_name}.\n')
+            self.write(f' * adding permissions to group {group_name}.\n')
             exec(f'self.{expression}()')
         for group_name in [n for n in self.group_names if n not in self.default_group_names]:
             expression = f'update_{group_name.lower()}_group_permissions'
-            sys.stdout.write(f' * adding permissions to group {group_name}.\n')
+            self.write(f' * adding permissions to group {group_name}.\n')
             try:
                 exec(f'self.{expression}()')
             except AttributeError as e:
                 if expression in str(e):
                     raise PermissionsUpdaterError(
                         f'Missing method for group {group_name}. '
-                        f'Expected method \'{expression}\'.')
+                        f'Expected method \'{expression}\'.',
+                        code='missing_method')
                 else:
                     print(expression)
                     raise
@@ -154,7 +176,7 @@ class PermissionsUpdater:
         self.add_edc_appointment_permissions(group)
         self.add_pii_permissions(group, view_only=True)
         self.add_navbar_permissions(
-            group, codenames=['default_administration', 'lab_section', 'lab_requisition'])
+            group, codenames=['nav_administration', 'nav_lab_section', 'nav_lab_requisition'])
         self.extra_auditor_group_permissions(group)
         for permission in Permission.objects.filter(codename__startswith='change'):
             group.permissions.remove(permission)
@@ -173,7 +195,7 @@ class PermissionsUpdater:
         self.add_edc_action_permissions(group)
         self.add_navbar_permissions(
             group, codenames=[
-                'default_administration', 'lab_section', 'lab_requisition'])
+                'nav_administration', 'nav_lab_section', 'nav_lab_requisition'])
 
     def remove_historical_permissions(self):
         for group_name in self.group_names:
@@ -182,9 +204,9 @@ class PermissionsUpdater:
                 codename__startswith='view').delete()
 
     def add_pii_permissions(self, group, view_only=None):
+        pii_model_names = [m.split('.')[1] for m in self.pii_models]
         lookup = dict(
-            content_type__app_label__in=self.pii_app_labels,
-            content_type__model__in=self.pii_models)
+            content_type__model__in=pii_model_names)
         if view_only:
             lookup.update(codename__startswith='view')
         for permission in Permission.objects.filter(**lookup):
@@ -198,10 +220,16 @@ class PermissionsUpdater:
 
     def add_navbar_permissions(self, group, codenames=None):
         for codename in codenames:
-            permission = Permission.objects.get(
-                content_type__app_label='edc_navbar',
-                codename=codename)
-            group.permissions.add(permission)
+            try:
+                permission = Permission.objects.get(
+                    content_type__app_label='edc_navbar',
+                    codename=codename)
+            except ObjectDoesNotExist as e:
+                raise PermissionsUpdaterError(
+                    f'{e}. Got {codename}',
+                    code='missing_navbar_codename')
+            else:
+                group.permissions.add(permission)
 
     def add_edc_action_permissions(self, group):
         for permission in Permission.objects.filter(
@@ -217,15 +245,16 @@ class PermissionsUpdater:
                 'edc_pharmacy', 'edc_pharmacy']):
             group.permissions.add(permission)
         self.add_navbar_permissions(
-            group, codenames=['default_administration', 'pharmacy'])
+            group, codenames=['nav_administration', 'nav_pharmacy'])
 
     def add_lab_permissions(self, group):
         for permission in Permission.objects.filter(content_type__app_label='edc_lab'):
             group.permissions.add(permission)
         self.add_navbar_permissions(
             group, codenames=[
-                'default_administration', 'lab_section', 'lab_requisition', 'lab_receive',
-                'lab_process', 'lab_pack', 'lab_manifest', 'lab_aliquot'])
+                'nav_administration', 'nav_lab_section', 'nav_lab_requisition',
+                'nav_lab_receive', 'nav_lab_process', 'nav_lab_pack',
+                'nav_lab_manifest', 'nav_lab_aliquot'])
 
     def add_edc_appointment_permissions(self, group):
         for permission in Permission.objects.filter(
