@@ -82,6 +82,16 @@ class PermissionsUpdater:
         """
         pass
 
+    def extra_lab_group_permissions(self, group):
+        """Override for custom group permissions.
+        """
+        pass
+
+    def extra_pharmacy_group_permissions(self, group):
+        """Override for custom group permissions.
+        """
+        pass
+
     def update_groups(self):
         for name in self.group_names:
             try:
@@ -115,6 +125,7 @@ class PermissionsUpdater:
             group_name = 'LAB'
             group = Group.objects.get(name=group_name)
             group.permissions.clear()
+        self.extra_lab_group_permissions(group)
         self.add_lab_permissions(group)
 
     def update_pharmacy_group_permissions(self, group=None):
@@ -122,6 +133,7 @@ class PermissionsUpdater:
             group_name = 'PHARMACY'
             group = Group.objects.get(name=group_name)
             group.permissions.clear()
+        self.extra_pharmacy_group_permissions(group)
         self.add_pharmacy_permissions(group)
 
     def update_pii_group_permissions(self, group=None):
@@ -168,6 +180,7 @@ class PermissionsUpdater:
             group_name = 'AUDITOR'
             group = Group.objects.get(name=group_name)
             group.permissions.clear()
+        self.extra_auditor_group_permissions(group)
         for permission in Permission.objects.filter(
                 content_type__app_label__in=self.auditor_app_labels,
                 codename__startswith='view'):
@@ -177,7 +190,6 @@ class PermissionsUpdater:
         self.add_pii_permissions(group, view_only=True)
         self.add_navbar_permissions(
             group, codenames=['nav_administration', 'nav_lab_section', 'nav_lab_requisition'])
-        self.extra_auditor_group_permissions(group)
         for permission in Permission.objects.filter(codename__startswith='change'):
             group.permissions.remove(permission)
         for permission in Permission.objects.filter(codename__startswith='add'):
