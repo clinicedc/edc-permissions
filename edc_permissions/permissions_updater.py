@@ -105,7 +105,8 @@ class PermissionsUpdater:
             expression = f'update_{group_name.lower()}_group_permissions'
             self.write(f' * adding permissions to group {group_name}.\n')
             exec(f'self.{expression}()')
-        for group_name in [n for n in self.group_names if n not in self.default_group_names]:
+        for group_name in [n for n in self.group_names
+                           if n not in self.default_group_names]:
             expression = f'update_{group_name.lower()}_group_permissions'
             self.write(f' * adding permissions to group {group_name}.\n')
             try:
@@ -189,7 +190,8 @@ class PermissionsUpdater:
         self.add_edc_appointment_permissions(group)
         self.add_pii_permissions(group, view_only=True)
         self.add_navbar_permissions(
-            group, codenames=['nav_administration', 'nav_lab_section', 'nav_lab_requisition'])
+            group, codenames=[
+                'nav_administration', 'nav_lab_section', 'nav_lab_requisition'])
         for permission in Permission.objects.filter(codename__startswith='change'):
             group.permissions.remove(permission)
         for permission in Permission.objects.filter(codename__startswith='add'):
@@ -253,14 +255,15 @@ class PermissionsUpdater:
             group.permissions.add(permission)
 
     def add_pharmacy_permissions(self, group):
-        for permission in Permission.objects.filter(content_type__app_label__in=[
-                'edc_pharmacy', 'edc_pharmacy']):
+        for permission in Permission.objects.filter(
+                content_type__app_label__in=['edc_pharmacy', 'edc_pharmacy']):
             group.permissions.add(permission)
         self.add_navbar_permissions(
             group, codenames=['nav_administration', 'nav_pharmacy'])
 
     def add_lab_permissions(self, group):
-        for permission in Permission.objects.filter(content_type__app_label='edc_lab'):
+        for permission in Permission.objects.filter(
+                content_type__app_label='edc_lab'):
             group.permissions.add(permission)
         self.add_navbar_permissions(
             group, codenames=[
