@@ -14,7 +14,7 @@ navbar.append_item(
         name='pharmacy',
         label='Pharmacy',
         fa_icon='fas fa-medkit',
-        permission_codename='nav_pharmacy',
+        permission_codename='nav_pharmacy_section',
         url_name=f'home_url'))
 
 navbar.append_item(
@@ -245,7 +245,7 @@ class TestPermissions(TestCase):
                 'delete_prescription',
                 'delete_prescriptionitem',
                 'nav_administration',
-                'nav_pharmacy',
+                'nav_pharmacy_section',
                 'view_appointment',
                 'view_dispenseditem',
                 'view_dosageguideline',
