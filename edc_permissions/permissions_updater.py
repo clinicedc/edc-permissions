@@ -259,7 +259,7 @@ class PermissionsUpdater:
                 content_type__app_label__in=['edc_pharmacy', 'edc_pharmacy']):
             group.permissions.add(permission)
         self.add_navbar_permissions(
-            group, codenames=['nav_administration', 'nav_pharmacy'])
+            group, codenames=['nav_administration', 'nav_pharmacy_section'])
 
     def add_lab_permissions(self, group):
         for permission in Permission.objects.filter(
