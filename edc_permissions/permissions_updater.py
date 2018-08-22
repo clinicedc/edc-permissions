@@ -14,6 +14,7 @@ class PermissionsUpdater:
 
     default_group_names = [
         'ACCOUNT_MANAGER',
+        'ADMINISTRATION',
         'AUDITOR',
         'CLINIC',
         'EVERYONE',
@@ -191,7 +192,7 @@ class PermissionsUpdater:
         self.add_pii_permissions(group, view_only=True)
         self.add_navbar_permissions(
             group, codenames=[
-                'nav_administration', 'nav_lab_section', 'nav_lab_requisition'])
+                'nav_lab_section', 'nav_lab_requisition'])
         for permission in Permission.objects.filter(codename__startswith='change'):
             group.permissions.remove(permission)
         for permission in Permission.objects.filter(codename__startswith='add'):
@@ -208,8 +209,15 @@ class PermissionsUpdater:
         self.add_edc_appointment_permissions(group)
         self.add_edc_action_permissions(group)
         self.add_navbar_permissions(
-            group, codenames=[
-                'nav_administration', 'nav_lab_section', 'nav_lab_requisition'])
+            group, codenames=['nav_lab_section', 'nav_lab_requisition'])
+
+    def update_administration_group_permissions(self, group=None):
+        if not group:
+            group_name = 'ADMINISTRATION'
+            group = Group.objects.get(name=group_name)
+            group.permissions.clear()
+        self.add_navbar_permissions(
+            group, codenames=['nav_administration'])
 
     def remove_historical_permissions(self):
         for group_name in self.group_names:
@@ -259,7 +267,7 @@ class PermissionsUpdater:
                 content_type__app_label__in=['edc_pharmacy', 'edc_pharmacy']):
             group.permissions.add(permission)
         self.add_navbar_permissions(
-            group, codenames=['nav_administration', 'nav_pharmacy_section'])
+            group, codenames=['nav_pharmacy_section'])
 
     def add_lab_permissions(self, group):
         for permission in Permission.objects.filter(
@@ -267,7 +275,7 @@ class PermissionsUpdater:
             group.permissions.add(permission)
         self.add_navbar_permissions(
             group, codenames=[
-                'nav_administration', 'nav_lab_section', 'nav_lab_requisition',
+                'nav_lab_section', 'nav_lab_requisition',
                 'nav_lab_receive', 'nav_lab_process', 'nav_lab_pack',
                 'nav_lab_manifest', 'nav_lab_aliquot'])
 

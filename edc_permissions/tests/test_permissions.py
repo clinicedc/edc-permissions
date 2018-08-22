@@ -81,7 +81,6 @@ class TestPermissions(TestCase):
             p.codename for p in group.permissions.all().order_by('codename')]
         self.assertEqual(
             codenames, [
-                'nav_administration',
                 'nav_lab_requisition',
                 'nav_lab_section',
                 'view_actionitem',
@@ -136,7 +135,6 @@ class TestPermissions(TestCase):
                         'delete_actionitemupdate',
                         'delete_actiontype',
                         'delete_reference',
-                        'nav_administration',
                         'nav_lab_requisition',
                         'nav_lab_section',
                         'view_actionitem',
@@ -190,7 +188,6 @@ class TestPermissions(TestCase):
                 'delete_result',
                 'delete_resultitem',
                 'delete_shipper',
-                'nav_administration',
                 'nav_lab_aliquot',
                 'nav_lab_manifest',
                 'nav_lab_pack',
@@ -244,7 +241,6 @@ class TestPermissions(TestCase):
                 'delete_medication',
                 'delete_prescription',
                 'delete_prescriptionitem',
-                'nav_administration',
                 'nav_pharmacy_section',
                 'view_appointment',
                 'view_dispenseditem',
@@ -271,6 +267,13 @@ class TestPermissions(TestCase):
                         'display_lastname',
                         'view_registeredsubject',
                         'view_subjectlocator'])
+
+    def test_administration(self):
+        group = Group.objects.get(name='ADMINISTRATION')
+        codenames = [
+            p.codename for p in group.permissions.all().order_by('codename')]
+        self.assertEqual(
+            codenames, ['nav_administration'])
 
     def test_raises_if_missing_group_permissions_method(self):
 
