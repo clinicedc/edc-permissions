@@ -6,6 +6,16 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from edc_navbar.site_navbars import site_navbars
 
 
+ACCOUNT_MANAGER = 'ACCOUNT_MANAGER'
+ADMINISTRATION = 'ADMINISTRATION'
+AUDITOR = 'AUDITOR'
+CLINIC = 'CLINIC'
+EVERYONE = 'EVERYONE'
+LAB = 'LAB'
+PHARMACY = 'PHARMACY'
+PII = 'PII'
+
+
 class PermissionsUpdaterError(ValidationError):
     pass
 
@@ -13,14 +23,14 @@ class PermissionsUpdaterError(ValidationError):
 class PermissionsUpdater:
 
     default_group_names = [
-        'ACCOUNT_MANAGER',
-        'ADMINISTRATION',
-        'AUDITOR',
-        'CLINIC',
-        'EVERYONE',
-        'LAB',
-        'PHARMACY',
-        'PII']
+        ACCOUNT_MANAGER,
+        ADMINISTRATION,
+        AUDITOR,
+        CLINIC,
+        EVERYONE,
+        LAB,
+        PHARMACY,
+        PII]
     default_pii_models = [
         'edc_locator.subjectlocator',
         'edc_registration.registeredsubject']
@@ -124,7 +134,7 @@ class PermissionsUpdater:
 
     def update_lab_group_permissions(self, group=None):
         if not group:
-            group_name = 'LAB'
+            group_name = LAB
             group = Group.objects.get(name=group_name)
             group.permissions.clear()
         self.extra_lab_group_permissions(group)
@@ -132,7 +142,7 @@ class PermissionsUpdater:
 
     def update_pharmacy_group_permissions(self, group=None):
         if not group:
-            group_name = 'PHARMACY'
+            group_name = PHARMACY
             group = Group.objects.get(name=group_name)
             group.permissions.clear()
         self.extra_pharmacy_group_permissions(group)
@@ -140,24 +150,25 @@ class PermissionsUpdater:
 
     def update_pii_group_permissions(self, group=None):
         if not group:
-            group_name = 'PII'
+            group_name = PII
             group = Group.objects.get(name=group_name)
             group.permissions.clear()
         self.add_pii_permissions(group)
 
     def update_everyone_group_permissions(self, group=None):
         if not group:
-            group_name = 'EVERYONE'
+            group_name = EVERYONE
             group = Group.objects.get(name=group_name)
             group.permissions.clear()
         for permission in Permission.objects.filter(
                 content_type__app_label='edc_auth',
                 content_type__model='userprofile',
-                codename__startswith='view'):
+                codename__in=['view_userprofile']):
             group.permissions.add(permission)
         for permission in Permission.objects.filter(
                 content_type__app_label='auth',
-                content_type__model__in=['user', 'group', 'permission'],
+                content_type__model__in=[
+                    'user', 'group', 'permission'],
                 codename__startswith='view'):
             group.permissions.add(permission)
         for permission in Permission.objects.filter(
@@ -165,12 +176,16 @@ class PermissionsUpdater:
                 content_type__model='site',
                 codename__startswith='view'):
             group.permissions.add(permission)
+        for permission in Permission.objects.filter(
+                content_type__app_label='admin',
+                codename__startswith='view'):
+            group.permissions.add(permission)
         for user in User.objects.filter(is_active=True, is_staff=True):
             user.groups.add(group)
 
     def update_account_manager_group_permissions(self, group=None):
         if not group:
-            group_name = 'ACCOUNT_MANAGER'
+            group_name = ACCOUNT_MANAGER
             group = Group.objects.get(name=group_name)
             group.permissions.clear()
         for permission in Permission.objects.filter(
@@ -179,7 +194,7 @@ class PermissionsUpdater:
 
     def update_auditor_group_permissions(self, group=None):
         if not group:
-            group_name = 'AUDITOR'
+            group_name = AUDITOR
             group = Group.objects.get(name=group_name)
             group.permissions.clear()
         self.extra_auditor_group_permissions(group)
@@ -202,7 +217,7 @@ class PermissionsUpdater:
 
     def update_clinic_group_permissions(self, group=None):
         if not group:
-            group_name = 'CLINIC'
+            group_name = CLINIC
             group = Group.objects.get(name=group_name)
             group.permissions.clear()
         self.extra_clinic_group_permissions(group)
@@ -213,7 +228,7 @@ class PermissionsUpdater:
 
     def update_administration_group_permissions(self, group=None):
         if not group:
-            group_name = 'ADMINISTRATION'
+            group_name = ADMINISTRATION
             group = Group.objects.get(name=group_name)
             group.permissions.clear()
         self.add_navbar_permissions(

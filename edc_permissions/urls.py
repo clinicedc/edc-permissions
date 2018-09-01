@@ -2,7 +2,6 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic.base import RedirectView
-from edc_base.views.administration_view import AdministrationView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -11,6 +10,7 @@ urlpatterns = [
 ]
 
 if settings.APP_NAME == 'edc_permissions':
+    from edc_dashboard.views import AdministrationView
     urlpatterns += [
         path('accounts/', include('edc_auth.urls')),
         path('edc_base/', include('edc_base.urls')),

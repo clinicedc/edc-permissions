@@ -70,6 +70,7 @@ class TestPermissions(TestCase):
         self.assertEqual(
             codenames, [
                 'view_group',
+                'view_logentry',
                 'view_permission',
                 'view_site',
                 'view_user',
