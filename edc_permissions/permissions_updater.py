@@ -36,6 +36,17 @@ class PermissionsUpdater:
         'edc_registration.registeredsubject']
     default_auditor_app_labels = ['edc_lab', 'edc_offstudy']
 
+    navbar_codenames = {
+        ADMINISTRATION: ['nav_administration'],
+        AUDITOR: ['nav_lab_section', 'nav_lab_requisition'],
+        CLINIC: ['nav_lab_section', 'nav_lab_requisition'],
+        LAB: ['nav_lab_section', 'nav_lab_requisition',
+              'nav_lab_receive', 'nav_lab_process',
+              'nav_lab_pack', 'nav_lab_manifest',
+              'nav_lab_aliquot'],
+        PHARMACY: ['nav_pharmacy_section'],
+    }
+
     auditor_app_labels = None
     group_names = None
     pii_models = None
@@ -206,8 +217,7 @@ class PermissionsUpdater:
         self.add_edc_appointment_permissions(group)
         self.add_pii_permissions(group, view_only=True)
         self.add_navbar_permissions(
-            group, codenames=[
-                'nav_lab_section', 'nav_lab_requisition'])
+            group, codenames=self.navbar_codenames.get(AUDITOR))
         for permission in Permission.objects.filter(codename__startswith='change'):
             group.permissions.remove(permission)
         for permission in Permission.objects.filter(codename__startswith='add'):
@@ -224,7 +234,7 @@ class PermissionsUpdater:
         self.add_edc_appointment_permissions(group)
         self.add_edc_action_permissions(group)
         self.add_navbar_permissions(
-            group, codenames=['nav_lab_section', 'nav_lab_requisition'])
+            group, codenames=self.navbar_codenames.get(CLINIC))
 
     def update_administration_group_permissions(self, group=None):
         if not group:
@@ -232,7 +242,7 @@ class PermissionsUpdater:
             group = Group.objects.get(name=group_name)
             group.permissions.clear()
         self.add_navbar_permissions(
-            group, codenames=['nav_administration'])
+            group, codenames=self.navbar_codenames.get(ADMINISTRATION))
 
     def remove_historical_permissions(self):
         for group_name in self.group_names:
@@ -282,17 +292,14 @@ class PermissionsUpdater:
                 content_type__app_label__in=['edc_pharmacy', 'edc_pharmacy']):
             group.permissions.add(permission)
         self.add_navbar_permissions(
-            group, codenames=['nav_pharmacy_section'])
+            group, codenames=self.navbar_codenames.get(PHARMACY))
 
     def add_lab_permissions(self, group):
         for permission in Permission.objects.filter(
                 content_type__app_label='edc_lab'):
             group.permissions.add(permission)
         self.add_navbar_permissions(
-            group, codenames=[
-                'nav_lab_section', 'nav_lab_requisition',
-                'nav_lab_receive', 'nav_lab_process', 'nav_lab_pack',
-                'nav_lab_manifest', 'nav_lab_aliquot'])
+            group, codenames=self.navbar_codenames.get(LAB))
 
     def add_edc_appointment_permissions(self, group):
         for permission in Permission.objects.filter(
