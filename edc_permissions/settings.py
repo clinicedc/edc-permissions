@@ -19,6 +19,8 @@ ALLOWED_HOSTS = []
 
 SITE_ID = 40
 
+ETC_DIR = BASE_DIR
+
 # Application definition
 
 INSTALLED_APPS = [

@@ -1,19 +1,16 @@
 import sys
 
+from copy import copy
 from django.apps import apps as django_apps
 from django.contrib.auth.models import Group, Permission, User
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from edc_navbar.site_navbars import site_navbars
 
-
-ACCOUNT_MANAGER = 'ACCOUNT_MANAGER'
-ADMINISTRATION = 'ADMINISTRATION'
-AUDITOR = 'AUDITOR'
-CLINIC = 'CLINIC'
-EVERYONE = 'EVERYONE'
-LAB = 'LAB'
-PHARMACY = 'PHARMACY'
-PII = 'PII'
+from .constants import (
+    ACCOUNT_MANAGER, ADMINISTRATION,
+    EVERYONE, AUDITOR, CLINIC, LAB, PHARMACY, PII,
+    DEFAULT_GROUP_NAMES, DEFAULT_PII_MODELS,
+    DEFAULT_AUDITOR_APP_LABELS)
 
 
 class PermissionsUpdaterError(ValidationError):
@@ -22,19 +19,9 @@ class PermissionsUpdaterError(ValidationError):
 
 class PermissionsUpdater:
 
-    default_group_names = [
-        ACCOUNT_MANAGER,
-        ADMINISTRATION,
-        AUDITOR,
-        CLINIC,
-        EVERYONE,
-        LAB,
-        PHARMACY,
-        PII]
-    default_pii_models = [
-        'edc_locator.subjectlocator',
-        'edc_registration.registeredsubject']
-    default_auditor_app_labels = ['edc_lab', 'edc_offstudy']
+    default_group_names = DEFAULT_GROUP_NAMES
+    default_pii_models = DEFAULT_PII_MODELS
+    default_auditor_app_labels = DEFAULT_AUDITOR_APP_LABELS
 
     navbar_codenames = {
         ADMINISTRATION: ['nav_administration'],
@@ -47,29 +34,31 @@ class PermissionsUpdater:
         PHARMACY: ['nav_pharmacy_section'],
     }
 
-    auditor_app_labels = None
-    group_names = None
-    pii_models = None
+    extra_auditor_app_labels = None
+    extra_group_names = None
+    extra_pii_models = None
 
     def __init__(self, verbose=None):
 
         self.write = str if verbose is False else sys.stdout.write
 
-        if self.pii_models:
-            self.pii_models.extend(self.default_pii_models)
-            self.pii_models = list(set(self.pii_models))
-        else:
-            self.pii_models = self.default_pii_models
-        if self.auditor_app_labels:
-            self.auditor_app_labels.extend(self.default_auditor_app_labels)
-            self.auditor_app_labels = list(set(self.auditor_app_labels))
-        else:
-            self.auditor_app_labels = self.default_auditor_app_labels
-        if self.group_names:
-            self.group_names.extend(self.default_group_names)
-            self.group_names = list(set(self.group_names))
-        else:
-            self.group_names = self.default_group_names
+        self.pii_models = copy(self.default_pii_models or [])
+        if self.extra_pii_models:
+            self.pii_models.extend(self.extra_pii_models or [])
+        self.pii_models = list(set(self.pii_models))
+        self.pii_models.sort()
+
+        self.auditor_app_labels = copy(self.default_auditor_app_labels or [])
+        if self.extra_auditor_app_labels:
+            self.auditor_app_labels.extend(self.extra_auditor_app_labels or [])
+        self.auditor_app_labels = list(set(self.auditor_app_labels))
+        self.auditor_app_labels.sort()
+
+        self.group_names = copy(self.default_group_names or [])
+        if self.extra_group_names:
+            self.group_names.extend(self.extra_group_names or [])
+        self.group_names = list(set(self.group_names))
+        self.group_names.sort()
 
         self.check_app_labels()
 
