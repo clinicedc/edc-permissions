@@ -298,3 +298,21 @@ class PermissionsUpdater:
             content_type__app_label='edc_appointment',
             codename='delete_appointment')
         group.permissions.remove(permission)
+
+    def ensure_users_in_group(self, group_name, users_by_groups=None):
+        group = Group.objects.get(name=group_name)
+        for user in User.objects.filter(groups__name__in=users_by_groups):
+            try:
+                user.groups.get(name=group.name)
+            except ObjectDoesNotExist:
+                user.groups.add(group)
+
+    def ensure_users_not_in_group(self, group_name, users_by_groups=None):
+        group = Group.objects.get(name=group_name)
+        for user in User.objects.filter(groups__name__in=users_by_groups):
+            try:
+                user.groups.get(name=group.name)
+            except ObjectDoesNotExist:
+                pass
+            else:
+                user.groups.remove(group)
