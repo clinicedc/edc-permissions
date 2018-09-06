@@ -3,21 +3,18 @@ from django.test import TestCase, tag
 
 from ..constants import (
     ACCOUNT_MANAGER, ADMINISTRATION, EVERYONE, AUDITOR,
-    CLINIC, LAB, PHARMACY, PII, DEFAULT_PII_MODELS,
-    DEFAULT_CODENAMES)
+    CLINIC, LAB, PHARMACY, PII)
 from ..permissions_updater import PermissionsUpdater
+from ..permissions_inspector import PermissionsInspector
 
 
 class TestGroupPermissions(TestCase):
 
-    codenames = DEFAULT_CODENAMES
-
     permissions_updater_cls = PermissionsUpdater
 
-    pii_models = DEFAULT_PII_MODELS
-
     def setUp(self):
-        self.perms = self.permissions_updater_cls(verbose=False)
+        self.updater = self.permissions_updater_cls(verbose=False)
+        self.inspector = PermissionsInspector()
 
     def compare_codenames(self, group_name):
         """Compare the codenames of group.permissions to
@@ -26,7 +23,7 @@ class TestGroupPermissions(TestCase):
         group = Group.objects.get(name=group_name)
         codenames = [
             p.codename for p in group.permissions.all().order_by('codename')]
-        self.assertEqual(codenames, self.codenames[group_name])
+        self.assertEqual(codenames, self.inspector.get_codenames(group_name))
 
     def test_account_manager(self):
         self.compare_codenames(ACCOUNT_MANAGER)
@@ -48,8 +45,7 @@ class TestGroupPermissions(TestCase):
 
     def test_pii(self):
         self.compare_codenames(PII)
-        self.perms.pii_models
-        self.assertEqual(self.perms.pii_models, self.pii_models)
+        self.assertEqual(self.updater.pii_models, self.inspector.pii_models)
 
     def test_administration(self):
         self.compare_codenames(ADMINISTRATION)

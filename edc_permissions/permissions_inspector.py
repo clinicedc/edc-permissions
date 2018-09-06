@@ -1,8 +1,9 @@
+from copy import copy
 from django.contrib.auth.models import Group
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from edc_permissions.constants import DEFAULT_CODENAMES, DEFAULT_PII_MODELS
 
 from .constants import DEFAULT_GROUP_NAMES
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from edc_permissions.constants.codenames import DEFAULT_CODENAMES
 
 INVALID_GROUP_NAME = 'invalid_group_name'
 MISSING_DEFAULT_CODENAME = 'missing default codename'
@@ -15,21 +16,28 @@ class PermissionsInspectorError(ValidationError):
 
 class PermissionsInspector:
 
-    extra_group_names = None
-
-    def __init__(self):
+    def __init__(self, extra_group_names=None, extra_pii_models=None, manually_validate=None):
         self.permissions = {}
+
         self.group_names = [key for key in DEFAULT_GROUP_NAMES]
-        self.group_names.extend(self.extra_group_names or [])
+        self.group_names.extend(extra_group_names or [])
         self.group_names = list(set(self.group_names))
         self.group_names.sort()
+
         groups = Group.objects.filter(name__in=self.group_names)
         for group in groups:
             codenames = [
                 p.codename for p in group.permissions.all().order_by('codename')]
             self.permissions.update({group.name: codenames})
-        self.validate_default_groups()
-        self.validate_default_codenames()
+
+        self.pii_models = copy(DEFAULT_PII_MODELS)
+        self.pii_models.extend(extra_pii_models or [])
+        self.pii_models = list(set(self.pii_models))
+        self.pii_models.sort()
+
+        if not manually_validate:
+            self.validate_default_groups()
+            self.validate_default_codenames()
 
     def get_codenames(self, group_name=None):
         """Returns an ordered list of current codenames from
