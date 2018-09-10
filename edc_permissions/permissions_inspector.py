@@ -4,7 +4,6 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from edc_permissions.constants import DEFAULT_CODENAMES, DEFAULT_PII_MODELS
 
 from .constants import DEFAULT_GROUP_NAMES
-from pprint import pprint
 
 INVALID_GROUP_NAME = 'invalid_group_name'
 MISSING_DEFAULT_CODENAME = 'missing default codename'
@@ -17,8 +16,10 @@ class PermissionsInspectorError(ValidationError):
 
 class PermissionsInspector:
 
-    def __init__(self, extra_group_names=None, extra_pii_models=None, manually_validate=None):
+    def __init__(self, extra_group_names=None, extra_pii_models=None,
+                 manually_validate=None, verbose=None):
         self.permissions = {}
+        self.verbose = verbose
 
         self.group_names = [key for key in DEFAULT_GROUP_NAMES]
         self.group_names.extend(extra_group_names or [])
@@ -56,7 +57,8 @@ class PermissionsInspector:
         """Raises an exception if a default Edc group does not exist.
         """
         for group_name in DEFAULT_GROUP_NAMES:
-            print(group_name)
+            if self.verbose:
+                print(group_name)
             try:
                 Group.objects.get(name=group_name)
             except ObjectDoesNotExist:
@@ -72,7 +74,8 @@ class PermissionsInspector:
             codenames = copy(DEFAULT_CODENAMES.get(group_name))
             codenames.sort()
             for codename in codenames:
-                print(group_name, codename)
+                if self.verbose:
+                    print(group_name, codename)
                 try:
                     Group.objects.get(name=group_name).permissions.get(
                         codename=codename)
