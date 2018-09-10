@@ -27,7 +27,7 @@ navbar.append_item(
 site_navbars.register(navbar)
 
 
-class TestPermissions(TestCase):
+class TestPermissionsUpdater(TestCase):
 
     def setUp(self):
         self.perms = PermissionsUpdater(verbose=False)
