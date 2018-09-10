@@ -3,7 +3,7 @@ from django.test import TestCase, tag
 
 from ..constants import (
     ACCOUNT_MANAGER, ADMINISTRATION, EVERYONE, AUDITOR,
-    CLINIC, LAB, PHARMACY, PII)
+    CLINIC, LAB, PHARMACY, PII, PII_VIEW)
 from ..permissions_updater import PermissionsUpdater
 from ..permissions_inspector import PermissionsInspector
 
@@ -28,11 +28,14 @@ class TestGroupPermissions(TestCase):
     def test_account_manager(self):
         self.compare_codenames(ACCOUNT_MANAGER)
 
-    def test_everyone(self):
-        self.compare_codenames(EVERYONE)
+    def test_administration(self):
+        self.compare_codenames(ADMINISTRATION)
 
     def test_auditor(self):
         self.compare_codenames(AUDITOR)
+
+    def test_everyone(self):
+        self.compare_codenames(EVERYONE)
 
     def test_clinic(self):
         self.compare_codenames(CLINIC)
@@ -47,5 +50,5 @@ class TestGroupPermissions(TestCase):
         self.compare_codenames(PII)
         self.assertEqual(self.updater.pii_models, self.inspector.pii_models)
 
-    def test_administration(self):
-        self.compare_codenames(ADMINISTRATION)
+    def test_pii_view(self):
+        self.compare_codenames(PII_VIEW)

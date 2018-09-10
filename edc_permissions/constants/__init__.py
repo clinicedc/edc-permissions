@@ -1,8 +1,8 @@
-from .codenames import DEFAULT_CODENAMES
+from .default_codenames import DEFAULT_CODENAMES
 from .group_names import (
-    ACCOUNT_MANAGER, ADMINISTRATION,
+    ACCOUNT_MANAGER, ADMINISTRATION, PII_VIEW,
     EVERYONE, AUDITOR, CLINIC, LAB, PHARMACY, PII)
-
+from .lab_dashboard_codenames import LAB_DASHBOARD_CODENAMES
 
 DEFAULT_AUDITOR_APP_LABELS = ['edc_lab', 'edc_offstudy']
 
@@ -14,7 +14,8 @@ DEFAULT_GROUP_NAMES = [
     EVERYONE,
     LAB,
     PHARMACY,
-    PII]
+    PII,
+    PII_VIEW]
 
 DEFAULT_PII_MODELS = [
     'edc_locator.subjectlocator',

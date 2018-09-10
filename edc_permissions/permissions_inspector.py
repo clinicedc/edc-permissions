@@ -16,8 +16,10 @@ class PermissionsInspectorError(ValidationError):
 
 class PermissionsInspector:
 
-    def __init__(self, extra_group_names=None, extra_pii_models=None, manually_validate=None):
+    def __init__(self, extra_group_names=None, extra_pii_models=None,
+                 manually_validate=None, verbose=None):
         self.permissions = {}
+        self.verbose = verbose
 
         self.group_names = [key for key in DEFAULT_GROUP_NAMES]
         self.group_names.extend(extra_group_names or [])
@@ -55,6 +57,8 @@ class PermissionsInspector:
         """Raises an exception if a default Edc group does not exist.
         """
         for group_name in DEFAULT_GROUP_NAMES:
+            if self.verbose:
+                print(group_name)
             try:
                 Group.objects.get(name=group_name)
             except ObjectDoesNotExist:
@@ -67,7 +71,11 @@ class PermissionsInspector:
         default Edc group does not exist.
         """
         for group_name in DEFAULT_GROUP_NAMES:
-            for codename in DEFAULT_CODENAMES.get(group_name):
+            codenames = copy(DEFAULT_CODENAMES.get(group_name))
+            codenames.sort()
+            for codename in codenames:
+                if self.verbose:
+                    print(group_name, codename)
                 try:
                     Group.objects.get(name=group_name).permissions.get(
                         codename=codename)
@@ -75,5 +83,5 @@ class PermissionsInspector:
                     raise PermissionsInspectorError(
                         f'Default codename does not exist for group. '
                         f'Group name is {group_name}. '
-                        f'Got {codename}.',
+                        f'Expected codenames are {codenames}. Got {codename}.',
                         code=MISSING_DEFAULT_CODENAME)

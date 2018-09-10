@@ -17,6 +17,8 @@ class TestPermissionsInspector(TestCase):
     def test_init(self):
         inspector = PermissionsInspector()
         for group_name in DEFAULT_GROUP_NAMES:
+            # print(f'compare {group_name} to default codenames')
+            # print(inspector.get_codenames(group_name))
             self.assertEqual(
                 DEFAULT_CODENAMES.get(group_name),
                 inspector.get_codenames(group_name))
@@ -25,6 +27,7 @@ class TestPermissionsInspector(TestCase):
         with self.assertRaises(PermissionsInspectorError) as cm:
             inspector = PermissionsInspector()
             inspector.get_codenames('BLAH')
+        # print(cm.exception.message)
         self.assertEqual(cm.exception.code, INVALID_GROUP_NAME)
 
     def test_missing_default_group_name(self):
