@@ -1,6 +1,7 @@
 from .group_names import (
     ACCOUNT_MANAGER, ADMINISTRATION, PII_VIEW,
-    EVERYONE, AUDITOR, CLINIC, LAB, PHARMACY, PII)
+    EVERYONE, AUDITOR, CLINIC, LAB, PHARMACY, PII,
+    EXPORT)
 
 DEFAULT_CODENAMES = {
     ACCOUNT_MANAGER: [
@@ -93,6 +94,9 @@ DEFAULT_CODENAMES = {
         'view_site',
         'view_user',
         'view_userprofile'],
+    EXPORT: [
+        'view_datarequest',
+    ],
     LAB: [
         'add_aliquot',
         'add_box',

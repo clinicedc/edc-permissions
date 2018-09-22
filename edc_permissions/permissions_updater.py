@@ -9,7 +9,7 @@ from django.db.models import Q
 from edc_navbar.site_navbars import site_navbars
 
 from .constants import (
-    ACCOUNT_MANAGER, ADMINISTRATION,
+    ACCOUNT_MANAGER, ADMINISTRATION, EXPORT,
     EVERYONE, AUDITOR, CLINIC, LAB, PHARMACY, PII, PII_VIEW,
     DEFAULT_GROUP_NAMES, DEFAULT_PII_MODELS,
     DEFAULT_AUDITOR_APP_LABELS, LAB_DASHBOARD_CODENAMES)
@@ -106,6 +106,11 @@ class PermissionsUpdater:
         self.write('Done.\n')
 
     def extra_auditor_group_permissions(self, group):
+        """Override for custom group permissions.
+        """
+        pass
+
+    def extra_export_group_permissions(self, group):
         """Override for custom group permissions.
         """
         pass
@@ -285,6 +290,15 @@ class PermissionsUpdater:
                 pass
             else:
                 user.groups.remove(group)
+
+    def update_export_group_permissions(self):
+        group_name = EXPORT
+        group = Group.objects.get(name=group_name)
+        group.permissions.clear()
+        for permission in Permission.objects.filter(
+                content_type__app_label='edc_export'):
+            group.permissions.add(permission)
+        self.extra_export_group_permissions(group)
 
     def update_lab_group_permissions(self):
         group_name = LAB
