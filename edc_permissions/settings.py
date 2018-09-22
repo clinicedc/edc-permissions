@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'edc_appointment.apps.AppConfig',
     'edc_auth.apps.AppConfig',
     'edc_dashboard.apps.AppConfig',
+    'edc_export.apps.AppConfig',
     'edc_lab.apps.AppConfig',
     'edc_lab_dashboard.apps.AppConfig',
     'edc_locator.apps.AppConfig',

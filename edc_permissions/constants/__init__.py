@@ -1,7 +1,8 @@
 from .default_codenames import DEFAULT_CODENAMES
 from .group_names import (
     ACCOUNT_MANAGER, ADMINISTRATION, PII_VIEW,
-    EVERYONE, AUDITOR, CLINIC, LAB, PHARMACY, PII)
+    EVERYONE, AUDITOR, CLINIC, LAB, PHARMACY, PII,
+    EXPORT)
 from .lab_dashboard_codenames import LAB_DASHBOARD_CODENAMES
 
 DEFAULT_AUDITOR_APP_LABELS = ['edc_lab', 'edc_offstudy']
@@ -12,6 +13,7 @@ DEFAULT_GROUP_NAMES = [
     AUDITOR,
     CLINIC,
     EVERYONE,
+    EXPORT,
     LAB,
     PHARMACY,
     PII,
