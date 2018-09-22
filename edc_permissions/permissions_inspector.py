@@ -71,17 +71,18 @@ class PermissionsInspector:
         default Edc group does not exist.
         """
         for group_name in DEFAULT_GROUP_NAMES:
-            codenames = copy(DEFAULT_CODENAMES.get(group_name))
-            codenames.sort()
-            for codename in codenames:
+            default_codenames = copy(DEFAULT_CODENAMES.get(group_name))
+            default_codenames.sort()
+            for default_codename in default_codenames:
                 if self.verbose:
-                    print(group_name, codename)
+                    print(group_name, default_codename)
                 try:
                     Group.objects.get(name=group_name).permissions.get(
-                        codename=codename)
+                        codename=default_codename)
                 except ObjectDoesNotExist:
                     raise PermissionsInspectorError(
                         f'Default codename does not exist for group. '
                         f'Group name is {group_name}. '
-                        f'Expected codenames are {codenames}. Got {codename}.',
+                        f'Expected codenames are {default_codenames}. '
+                        f'Searched group.permissions for {default_codename}.',
                         code=MISSING_DEFAULT_CODENAME)

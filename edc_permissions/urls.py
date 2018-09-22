@@ -14,6 +14,7 @@ if settings.APP_NAME == 'edc_permissions':
     urlpatterns += [
         path('accounts/', include('edc_auth.urls')),
         path('edc_base/', include('edc_base.urls')),
+        path('edc_export/', include('edc_export.urls')),
         path('edc_lab/', include('edc_lab.urls')),
         path('edc_lab_dashboard/', include('edc_lab_dashboard.urls')),
         path('edc_pharmacy/', include('edc_pharmacy.urls')),

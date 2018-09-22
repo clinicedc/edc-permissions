@@ -1,5 +1,6 @@
 from django.contrib.auth.models import Group
 from django.test import TestCase, tag
+from pprint import pprint
 
 from ..constants import DEFAULT_GROUP_NAMES, DEFAULT_CODENAMES, EVERYONE
 from ..permissions_inspector import INVALID_GROUP_NAME, MISSING_DEFAULT_GROUP
@@ -19,6 +20,9 @@ class TestPermissionsInspector(TestCase):
         for group_name in DEFAULT_GROUP_NAMES:
             # print(f'compare {group_name} to default codenames')
             # print(inspector.get_codenames(group_name))
+            if DEFAULT_CODENAMES.get(group_name) != inspector.get_codenames(group_name):
+                pprint(DEFAULT_CODENAMES.get(group_name))
+                pprint(inspector.get_codenames(group_name))
             self.assertEqual(
                 DEFAULT_CODENAMES.get(group_name),
                 inspector.get_codenames(group_name))

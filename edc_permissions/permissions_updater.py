@@ -144,6 +144,9 @@ class PermissionsUpdater:
     def update_group_permissions(self):
         """Calls the `update_xxxx_group_permissions` method
         for each group name.
+
+        Permissions are model-based so be sure to add the APP
+        to INSTALLED_APPS.
         """
         for group_name in self.default_group_names:
             expression = f'update_{group_name.lower()}_group_permissions'

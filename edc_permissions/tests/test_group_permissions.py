@@ -3,9 +3,9 @@ from django.test import TestCase, tag
 
 from ..constants import (
     ACCOUNT_MANAGER, ADMINISTRATION, EVERYONE, AUDITOR,
-    CLINIC, LAB, PHARMACY, PII, PII_VIEW)
-from ..permissions_updater import PermissionsUpdater
+    CLINIC, LAB, PHARMACY, PII, PII_VIEW, EXPORT)
 from ..permissions_inspector import PermissionsInspector
+from ..permissions_updater import PermissionsUpdater
 
 
 class TestGroupPermissions(TestCase):
@@ -42,6 +42,9 @@ class TestGroupPermissions(TestCase):
 
     def test_lab(self):
         self.compare_codenames(LAB)
+
+    def test_export(self):
+        self.compare_codenames(EXPORT)
 
     def test_pharmacy(self):
         self.compare_codenames(PHARMACY)
