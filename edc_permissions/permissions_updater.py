@@ -42,16 +42,18 @@ class PermissionsUpdater:
     default_group_names = DEFAULT_GROUP_NAMES
     default_pii_models = DEFAULT_PII_MODELS
     default_auditor_app_labels = DEFAULT_AUDITOR_APP_LABELS
-    default_dashboard_codenames = {
-        LAB: LAB_DASHBOARD_CODENAMES}
+    default_dashboard_codenames = {LAB: LAB_DASHBOARD_CODENAMES}
 
     navbar_codenames = {
         ADMINISTRATION: ['nav_administration'],
         AUDITOR: ['nav_lab_section', 'nav_lab_requisition'],
         CLINIC: ['nav_lab_section', 'nav_lab_requisition'],
-        LAB: ['nav_lab_section', 'nav_lab_requisition',
-              'nav_lab_receive', 'nav_lab_process',
-              'nav_lab_pack', 'nav_lab_manifest',
+        LAB: ['nav_lab_section',
+              'nav_lab_requisition',
+              'nav_lab_receive',
+              'nav_lab_process',
+              'nav_lab_pack',
+              'nav_lab_manifest',
               'nav_lab_aliquot'],
         PHARMACY: ['nav_pharmacy_section'],
     }
