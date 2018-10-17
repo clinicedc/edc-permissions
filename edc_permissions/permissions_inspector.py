@@ -184,7 +184,8 @@ class PermissionsInspector:
                 codenames = [x.codename for x in group.permissions.filter(
                     group__name=group_name)]
                 deleted = group.permissions.filter(
-                    group__name=group_name, codename__in=[x for x in codenames if x in PII]).delete()
+                    group__name=group_name, codename__in=[
+                        x for x in codenames if x in PII]).delete()
                 if deleted[0]:
                     raise PermissionsInspectorWarning(
                         f'Group unexpectedly permits PII codenames. Got {deleted}. '
