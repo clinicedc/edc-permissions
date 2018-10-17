@@ -169,6 +169,12 @@ class PermissionsInspector:
         return {'unexpected': [x for x in existing if x not in defaults],
                 'missing': [x for x in defaults if x not in existing]}
 
+    def remove_codenames(self, group_name=None, codenames=None):
+        group = self.group_model_cls().objects.get(name=group_name)
+        deleted = group.permissions.filter(
+            group__name=group_name, codename__in=codenames).delete()
+        return deleted
+
     def validate_pii(self):
         """Ensure PII codenames not in any other group.
         """
