@@ -21,6 +21,9 @@ SITE_ID = 40
 
 ETC_DIR = BASE_DIR
 
+EMAIL_CONTACTS = {'data_manager': 'user@example.com'}
+EMAIL_ENABLED = False
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -43,6 +46,7 @@ INSTALLED_APPS = [
     'edc_metadata.apps.AppConfig',
     'edc_metadata_rules.apps.AppConfig',
     'edc_navbar.apps.AppConfig',
+    'edc_notification.apps.AppConfig',
     'edc_offstudy.apps.AppConfig',
     'edc_pharmacy.apps.AppConfig',
     'edc_registration.apps.AppConfig',
