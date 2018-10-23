@@ -369,7 +369,7 @@ class PermissionsUpdater:
         group = Group.objects.get(name=group_name)
         group.permissions.clear()
         for permission in Permission.objects.filter(
-                content_type__app_label__in=['auth', 'edc_auth']):
+                content_type__app_label__in=['auth', 'edc_auth', 'edc_notification']):
             group.permissions.add(permission)
 
     def update_auditor_group_permissions(self):
