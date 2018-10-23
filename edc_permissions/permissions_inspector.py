@@ -154,13 +154,15 @@ class PermissionsInspector:
             default_codenames=default_codenames
             extra_group_names
 
+            from ambition_auth.codenames import CODENAMES
+            from ambition_auth.group_names import TMG
             from edc_permissions.constants import AUDITOR
             from edc_permissions.permissions_inspector import PermissionsInspector
 
             inspector = PermissionsInspector(
                 manually_validate=True,
-                default_codenames=default_codenames,
-                extra_group_names=extra_group_names)
+                default_codenames=CODENAMES,
+                extra_group_names=[TMG])
             inspector.diff_codenames(group_name=AUDITOR)
 
         """
@@ -170,6 +172,14 @@ class PermissionsInspector:
                 'missing': [x for x in defaults if x not in existing]}
 
     def remove_codenames(self, group_name=None, codenames=None):
+        """Remove persisted codenames.
+
+        For example:
+            inspector.remove_codenames(
+                group_name=AUDITOR,
+                codenames=['view_action', 'add_action',
+                           'delete_action', 'change_action'])
+        """
         group = self.group_model_cls().objects.get(name=group_name)
         deleted = group.permissions.filter(
             group__name=group_name, codename__in=codenames).delete()
