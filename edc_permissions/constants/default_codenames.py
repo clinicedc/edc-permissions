@@ -1,7 +1,7 @@
 from .group_names import (
     ACCOUNT_MANAGER, ADMINISTRATION, PII_VIEW,
     EVERYONE, AUDITOR, CLINIC, LAB, PHARMACY, PII,
-    EXPORT)
+    EXPORT, DATA_MANAGER)
 
 DEFAULT_CODENAMES = {
     ACCOUNT_MANAGER: [
@@ -93,6 +93,15 @@ DEFAULT_CODENAMES = {
         'view_reference',
         'view_subjectoffstudy',
     ],
+    DATA_MANAGER: [
+        'add_crfmetadata',
+        'add_requisitionmetadata',
+        'change_crfmetadata',
+        'change_requisitionmetadata',
+        'delete_crfmetadata',
+        'delete_requisitionmetadata',
+        'view_crfmetadata',
+        'view_requisitionmetadata'],
     EVERYONE: [
         'view_group',
         'view_logentry',

@@ -9,11 +9,10 @@ from django.db.models import Q
 from edc_navbar.site_navbars import site_navbars
 
 from .constants import (
-    ACCOUNT_MANAGER, ADMINISTRATION, EXPORT,
+    ACCOUNT_MANAGER, ADMINISTRATION, EXPORT, DATA_MANAGER,
     EVERYONE, AUDITOR, CLINIC, LAB, PHARMACY, PII, PII_VIEW,
     DEFAULT_GROUP_NAMES, DEFAULT_PII_MODELS,
     DEFAULT_AUDITOR_APP_LABELS, LAB_DASHBOARD_CODENAMES)
-
 
 DUPLICATE_CODENAME = 'duplicate_codename'
 
@@ -413,6 +412,14 @@ class PermissionsUpdater:
         group.permissions.clear()
         self.add_navbar_permissions(
             group, codenames=self.navbar_codenames.get(ADMINISTRATION))
+
+    def update_data_manager_group_permissions(self):
+        group_name = DATA_MANAGER
+        group = Group.objects.get(name=group_name)
+        group.permissions.clear()
+        for permission in Permission.objects.filter(
+                content_type__app_label__in=['edc_metadata', ]):
+            group.permissions.add(permission)
 
     def add_pii_permissions(self, group, view_only=None):
         """Adds PII model permissions.
