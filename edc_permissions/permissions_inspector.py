@@ -124,21 +124,28 @@ class PermissionsInspector:
             else:
                 sys.stdout.write(style.WARNING(f' * Warning: {msg}\n'))
         else:
+            default_codenames = list(set(default_codenames))
+            actual_codenames = list(set(self.get_codenames(group_name)))
             default_codenames.sort()
-            if default_codenames != self.get_codenames(group_name):
-                if len(default_codenames) < len(self.get_codenames(group_name)):
+            actual_codenames.sort()
+            if len(actual_codenames) != self.get_codenames(group_name):
+                sys.stdout.write(style.ERROR(
+                    f'Duplicate codenames found. See actual codenames '
+                    f'for group {group_name}\n'))
+            if default_codenames != actual_codenames:
+                if len(default_codenames) < len(actual_codenames):
                     raise PermissionsInspectorError(
                         f'When comparing Permissions codenames to the default, '
                         f'some codenames are not expected. '
                         f'Got {len(default_codenames)} defaults != '
-                        f'{len(self.get_codenames(group_name))} actual. '
+                        f'{len(actual_codenames)} actual. '
                         f'See group {group_name}.')
-                elif len(default_codenames) > len(self.get_codenames(group_name)):
+                elif len(default_codenames) > len(actual_codenames):
                     raise PermissionsInspectorError(
                         f'When comparing Permissions codenames to the default, '
                         'some expected codenames are missing. '
                         f'Got {len(default_codenames)} defaults != '
-                        f'{len(self.get_codenames(group_name))} actual. '
+                        f'{len(actual_codenames)} actual. '
                         f'See group {group_name}.')
                 else:
                     raise PermissionsInspectorError(
