@@ -5,7 +5,6 @@ from django.test import TestCase, tag
 from ..constants import LAB_DASHBOARD_CODENAMES
 from ..permissions_updater import (
     PermissionsUpdater, PermissionsUpdaterError, DUPLICATE_CODENAME)
-from unittest.case import skip
 
 
 class TestDashboardPermissions(TestCase):

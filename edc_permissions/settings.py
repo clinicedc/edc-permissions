@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'edc_offstudy.apps.AppConfig',
     'edc_pharmacy.apps.AppConfig',
     'edc_registration.apps.AppConfig',
+    'edc_reference.apps.AppConfig',
     # 'edc_pharmacy_dashboard.apps.AppConfig',
     'edc_permissions.apps.AppConfig',
 ]
