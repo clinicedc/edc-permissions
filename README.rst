@@ -3,7 +3,7 @@
 edc-permissions
 ---------------
 
-Simple classes for setting group permissions
+Simple classes for setting group permissions required for Edc deployments.
 
 
 To add the default groups and permissions run the management command:
@@ -48,6 +48,14 @@ The default groups are required for the normal operation of an EDC deployment. T
 * ``ADMINISTRATION``
 * ``AUDITOR``
 * ``PII_VIEW``
+
+
+** Permissions **
+
+Permissions use Django's permission framework,  therefore, all permissions are linked to some model.
+
+Permissions don't always naturally link to a model. In such cases, a dummy model is created. For example, with Navigation bars from `edc_navbar`. Permissions to follow an item on a navigation bar are associated with model `edc_navbar.Navbar`. A similar approach is used for `listboard` permissions using `edc_dashboard.Dashboard`.
+
 
 
 .. |pypi| image:: https://img.shields.io/pypi/v/edc-permissions.svg

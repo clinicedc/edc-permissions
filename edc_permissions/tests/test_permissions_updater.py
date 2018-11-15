@@ -87,8 +87,8 @@ class TestPermissionsUpdater(TestCase):
             def update_erik_group_permissions(self):
                 group = Group.objects.get(name='ERIK')
                 group.permissions.clear()
-                self.add_navbar_permissions(
-                    group, codenames=['nav_blahblah'])
+                self.add_permissions(
+                    group=group, codenames=['edc_navbar.nav_blahblah'])
 
         with self.assertRaises(PermissionsUpdaterError) as cm:
             MyPermissionsUpdater(verbose=False)
@@ -104,9 +104,10 @@ class TestPermissionsUpdater(TestCase):
             def update_erik_group_permissions(self):
                 group = Group.objects.get(name='ERIK')
                 group.permissions.clear()
-                self.add_navbar_permissions(
-                    group, codenames=[
-                        'nav_lab_section', 'nav_lab_requisition'])
+                self.add_permissions(
+                    group=group, codenames=[
+                        'edc_navbar.nav_lab_section',
+                        'edc_navbar.nav_lab_requisition'])
 
         MyPermissionsUpdater(verbose=True)
         group = Group.objects.get(name='PII')

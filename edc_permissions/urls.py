@@ -18,6 +18,7 @@ if settings.APP_NAME == 'edc_permissions':
         path('edc_lab/', include('edc_lab.urls')),
         path('edc_lab_dashboard/', include('edc_lab_dashboard.urls')),
         path('edc_pharmacy/', include('edc_pharmacy.urls')),
+        path('edc_reference/', include('edc_reference.urls')),
         # path('edc_pharmacy_dashboard/', include('edc_pharmacy_dashboard.urls')),
         path('administration/', AdministrationView.as_view(),
              name='administration_url'),

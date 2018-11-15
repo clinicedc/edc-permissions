@@ -18,8 +18,6 @@ class TestPermissionsInspector(TestCase):
     def test_init(self):
         inspector = PermissionsInspector()
         for group_name in DEFAULT_GROUP_NAMES:
-            # print(f'compare {group_name} to default codenames')
-            # print(inspector.get_codenames(group_name))
             if DEFAULT_CODENAMES.get(group_name) != inspector.get_codenames(group_name):
                 pprint(DEFAULT_CODENAMES.get(group_name))
                 pprint(inspector.get_codenames(group_name))
