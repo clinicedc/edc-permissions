@@ -96,7 +96,7 @@ class PermissionsInspector:
         """Raises an exception if a default codename list for a
         default Edc group does not exist.
 
-        Codenames in `default_codenames` are of format:
+        Permissions codenames in `default_codenames` are of format:
             app_label.codename
         """
         for group_name in self.default_codenames:
@@ -106,28 +106,8 @@ class PermissionsInspector:
                 if self.verbose:
                     print(group_name, default_codename)
                 try:
-                    app_label, codename = default_codename.split('.')
-                except ValueError as e:
-                    raise PermissionsInspectorError(
-                        f'Invalid codename. See {default_codename}. Got {e}')
-                try:
-                    django_apps.get_app_config(app_label)
-                except LookupError:
-                    sys.stdout.write(style.ERROR(
-                        f'Invalid codename. \'{app_label}\' is not a valid App. '
-                        f'Got \'{default_codename}\'.\n'))
-                else:
-                    if (('view' in codename or 'add' in codename or 'change' in codename or 'delete' in codename)
-                            and (app_label not in ['edc_dashboard'])):
-                        model = codename.split('_')[1]
-                        try:
-                            django_apps.get_model(f'{app_label}.{model}')
-                        except LookupError as e:
-                            raise PermissionsInspectorError(
-                                f'{e}. See codename=\'{app_label}.{codename}\'.')
-                try:
                     self.group_model_cls().objects.get(name=group_name).permissions.get(
-                        codename=codename)
+                        codename=self.get_codename_from(default_codename))
                 except ObjectDoesNotExist:
                     raise PermissionsInspectorError(
                         f'Default codename does not exist for group. '
@@ -135,6 +115,37 @@ class PermissionsInspector:
                         f'Expected codenames are {default_codenames}. '
                         f'Searched group.permissions for {default_codename}.',
                         code=MISSING_DEFAULT_CODENAME)
+
+    def get_codename_from(self, permissions_codename):
+        """Returns the 'codename' part of a permissions codename
+        where the format of the given permissions codename
+        is `app_label.codename`.
+
+        Some validation checks are done on the permissions_codename
+        first.
+        """
+        try:
+            app_label, codename = permissions_codename.split('.')
+        except ValueError as e:
+            raise PermissionsInspectorError(
+                f'Invalid codename. See {permissions_codename}. Got {e}')
+        try:
+            django_apps.get_app_config(app_label)
+        except LookupError:
+            sys.stdout.write(style.ERROR(
+                f'Invalid codename. \'{app_label}\' is not a valid App. '
+                f'Got \'{permissions_codename}\'.\n'))
+        else:
+            if (('view' in codename or 'add' in codename
+                 or 'change' in codename or 'delete' in codename)
+                    and (app_label not in ['edc_dashboard'])):
+                model = codename.split('_')[1]
+                try:
+                    django_apps.get_model(f'{app_label}.{model}')
+                except LookupError as e:
+                    raise PermissionsInspectorError(
+                        f'{e}. See codename=\'{app_label}.{codename}\'.')
+        return codename
 
     def compare_codenames(self, group_name=None, print_exception=None):
         """For a given group, compare the list of codenames from
