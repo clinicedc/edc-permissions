@@ -3,6 +3,7 @@ import sys
 from copy import copy
 from django.apps import apps as django_apps
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import MultipleObjectsReturned
 from django.core.management.color import color_style
 from edc_permissions.constants import DEFAULT_CODENAMES, DEFAULT_PII_MODELS
 from edc_permissions.constants import PII, PII_VIEW
@@ -14,6 +15,7 @@ style = color_style()
 
 INVALID_GROUP_NAME = 'invalid_group_name'
 MISSING_DEFAULT_CODENAME = 'missing default codename'
+MULTIPLE_CODENAMES = 'multiple codenames'
 MISSING_DEFAULT_GROUP = 'missing default group'
 NO_CODENAMES_FOR_GROUP = 'no_codenames_for_group'
 
@@ -105,9 +107,10 @@ class PermissionsInspector:
             for default_codename in default_codenames:
                 if self.verbose:
                     print(group_name, default_codename)
+                app_label, codename = self.get_codename_from(default_codename)
                 try:
                     self.group_model_cls().objects.get(name=group_name).permissions.get(
-                        codename=self.get_codename_from(default_codename))
+                        content_type__app_label=app_label, codename=codename)
                 except ObjectDoesNotExist:
                     raise PermissionsInspectorError(
                         f'Default codename does not exist for group. '
@@ -115,6 +118,13 @@ class PermissionsInspector:
                         f'Expected codenames are {default_codenames}. '
                         f'Searched group.permissions for {default_codename}.',
                         code=MISSING_DEFAULT_CODENAME)
+                except MultipleObjectsReturned as e:
+                    raise PermissionsInspectorError(
+                        f'{e} '
+                        f'Group name is {group_name}. '
+                        f'Expected codenames are {default_codenames}. '
+                        f'Searched group.permissions for {default_codename}.',
+                        code=MULTIPLE_CODENAMES)
 
     def get_codename_from(self, permissions_codename):
         """Returns the 'codename' part of a permissions codename
@@ -145,7 +155,7 @@ class PermissionsInspector:
                 except LookupError as e:
                     raise PermissionsInspectorError(
                         f'{e}. See codename=\'{app_label}.{codename}\'.')
-        return codename
+        return app_label, codename
 
     def compare_codenames(self, group_name=None, print_exception=None):
         """For a given group, compare the list of codenames from
