@@ -2,8 +2,8 @@ import sys
 
 from copy import copy
 from django.apps import apps as django_apps
-from django.core.exceptions import ObjectDoesNotExist, ValidationError,\
-    MultipleObjectsReturned
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import MultipleObjectsReturned
 from django.core.management.color import color_style
 from edc_permissions.constants import DEFAULT_CODENAMES, DEFAULT_PII_MODELS
 from edc_permissions.constants import PII, PII_VIEW
