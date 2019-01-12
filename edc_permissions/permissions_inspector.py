@@ -188,6 +188,8 @@ class PermissionsInspector:
                 default_codenames)
             if dedup_default_codenames != dedup_actual_codenames:
                 if len(dedup_default_codenames) < len(dedup_actual_codenames):
+                    if self.verbose:
+                        pprint(dedup_actual_codenames)
                     raise PermissionsInspectorError(
                         f'When comparing Permissions codenames to the default, '
                         f'some codenames are not expected. '
