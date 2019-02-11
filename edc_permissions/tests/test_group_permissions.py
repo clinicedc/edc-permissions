@@ -17,5 +17,4 @@ class TestGroupPermissions(TestCase):
 
     def test_codenames(self):
         for group in self.codenames:
-            self.inspector.compare_codenames(
-                group_name=group)
+            self.inspector.compare_codenames(group_name=group)
