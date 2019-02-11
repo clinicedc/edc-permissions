@@ -13,11 +13,11 @@ from .constants import DEFAULT_GROUP_NAMES
 
 style = color_style()
 
-INVALID_GROUP_NAME = 'invalid_group_name'
-MISSING_DEFAULT_CODENAME = 'missing default codename'
-MULTIPLE_CODENAMES = 'multiple codenames'
-MISSING_DEFAULT_GROUP = 'missing default group'
-NO_CODENAMES_FOR_GROUP = 'no_codenames_for_group'
+INVALID_GROUP_NAME = "invalid_group_name"
+MISSING_DEFAULT_CODENAME = "missing default codename"
+MULTIPLE_CODENAMES = "multiple codenames"
+MISSING_DEFAULT_GROUP = "missing default group"
+NO_CODENAMES_FOR_GROUP = "no_codenames_for_group"
 
 
 class PermissionsInspectorError(ValidationError):
@@ -29,10 +29,15 @@ class PermissionsInspectorWarning(ValidationError):
 
 
 class PermissionsInspector:
-
-    def __init__(self, extra_group_names=None, extra_pii_models=None,
-                 manually_validate=None, verbose=None, default_codenames=None,
-                 raise_on_warning=None):
+    def __init__(
+        self,
+        extra_group_names=None,
+        extra_pii_models=None,
+        manually_validate=None,
+        verbose=None,
+        default_codenames=None,
+        raise_on_warning=None,
+    ):
         self.codenames = {}
         self.verbose = verbose
         self.default_codenames = default_codenames or DEFAULT_CODENAMES
@@ -47,8 +52,9 @@ class PermissionsInspector:
         groups = self.group_model_cls().objects.filter(name__in=self.group_names)
         for group in groups:
             codenames = [
-                f'{p.content_type.app_label}.{p.codename}'
-                for p in group.permissions.all().order_by('codename')]
+                f"{p.content_type.app_label}.{p.codename}"
+                for p in group.permissions.all().order_by("codename")
+            ]
             self.codenames.update({group.name: codenames})
 
         self.pii_models = copy(DEFAULT_PII_MODELS)
@@ -63,7 +69,7 @@ class PermissionsInspector:
                 self.compare_codenames(group_name=group_name)
 
     def group_model_cls(self):
-        return django_apps.get_model('auth.group')
+        return django_apps.get_model("auth.group")
 
     def get_codenames(self, group_name=None):
         """Returns an ordered list of current codenames from
@@ -71,12 +77,16 @@ class PermissionsInspector:
         """
         if group_name not in self.group_names:
             raise PermissionsInspectorError(
-                f'Invalid group name. Expected one of {self.group_names}. '
-                f'Got {group_name}.', code=INVALID_GROUP_NAME)
+                f"Invalid group name. Expected one of {self.group_names}. "
+                f"Got {group_name}.",
+                code=INVALID_GROUP_NAME,
+            )
         if group_name not in self.codenames:
             raise PermissionsInspectorError(
-                f'No codenames found for group. See Permissions model. '
-                f'Got {group_name}.', code=NO_CODENAMES_FOR_GROUP)
+                f"No codenames found for group. See Permissions model. "
+                f"Got {group_name}.",
+                code=NO_CODENAMES_FOR_GROUP,
+            )
         codenames = [x for x in self.codenames.get(group_name)]
         codenames.sort()
         return codenames
@@ -91,8 +101,9 @@ class PermissionsInspector:
                 self.group_model_cls().objects.get(name=group_name)
             except ObjectDoesNotExist:
                 raise PermissionsInspectorError(
-                    f'Default group does not exist. Got {group_name}',
-                    code=MISSING_DEFAULT_GROUP)
+                    f"Default group does not exist. Got {group_name}",
+                    code=MISSING_DEFAULT_GROUP,
+                )
 
     def validate_default_codenames(self):
         """Raises an exception if a default codename list for a
@@ -110,21 +121,24 @@ class PermissionsInspector:
                 app_label, codename = self.get_codename_from(default_codename)
                 try:
                     self.group_model_cls().objects.get(name=group_name).permissions.get(
-                        content_type__app_label=app_label, codename=codename)
+                        content_type__app_label=app_label, codename=codename
+                    )
                 except ObjectDoesNotExist:
                     raise PermissionsInspectorError(
-                        f'Default codename does not exist for group. '
-                        f'Group name is {group_name}. '
-                        f'Expected codenames are {default_codenames}. '
-                        f'Searched group.permissions for {default_codename}.',
-                        code=MISSING_DEFAULT_CODENAME)
+                        f"Default codename does not exist for group. "
+                        f"Group name is {group_name}. "
+                        f"Expected codenames are {default_codenames}. "
+                        f"Searched group.permissions for {default_codename}.",
+                        code=MISSING_DEFAULT_CODENAME,
+                    )
                 except MultipleObjectsReturned as e:
                     raise PermissionsInspectorError(
-                        f'{e} '
-                        f'Group name is {group_name}. '
-                        f'Expected codenames are {default_codenames}. '
-                        f'Searched group.permissions for {default_codename}.',
-                        code=MULTIPLE_CODENAMES)
+                        f"{e} "
+                        f"Group name is {group_name}. "
+                        f"Expected codenames are {default_codenames}. "
+                        f"Searched group.permissions for {default_codename}.",
+                        code=MULTIPLE_CODENAMES,
+                    )
 
     def get_codename_from(self, permissions_codename):
         """Returns the 'codename' part of a permissions codename
@@ -135,26 +149,34 @@ class PermissionsInspector:
         first.
         """
         try:
-            app_label, codename = permissions_codename.split('.')
+            app_label, codename = permissions_codename.split(".")
         except ValueError as e:
             raise PermissionsInspectorError(
-                f'Invalid codename. See {permissions_codename}. Got {e}')
+                f"Invalid codename. See {permissions_codename}. Got {e}"
+            )
         try:
             django_apps.get_app_config(app_label)
         except LookupError:
-            sys.stdout.write(style.ERROR(
-                f'Invalid codename. \'{app_label}\' is not a valid App. '
-                f'Got \'{permissions_codename}\'.\n'))
+            sys.stdout.write(
+                style.ERROR(
+                    f"Invalid codename. '{app_label}' is not a valid App. "
+                    f"Got '{permissions_codename}'.\n"
+                )
+            )
         else:
-            if (('view' in codename or 'add' in codename
-                 or 'change' in codename or 'delete' in codename)
-                    and (app_label not in ['edc_dashboard'])):
-                model = codename.split('_')[1]
+            if (
+                "view" in codename
+                or "add" in codename
+                or "change" in codename
+                or "delete" in codename
+            ) and (app_label not in ["edc_dashboard"]):
+                model = codename.split("_")[1]
                 try:
-                    django_apps.get_model(f'{app_label}.{model}')
+                    django_apps.get_model(f"{app_label}.{model}")
                 except LookupError as e:
                     raise PermissionsInspectorError(
-                        f'{e}. See codename=\'{app_label}.{codename}\'.')
+                        f"{e}. See codename='{app_label}.{codename}'."
+                    )
         return app_label, codename
 
     def compare_codenames(self, group_name=None, print_exception=None):
@@ -163,56 +185,62 @@ class PermissionsInspector:
         """
         default_codenames = self.default_codenames.get(group_name)
         if not default_codenames:
-            msg = (f'Not comparing current codenames to default. '
-                   f'Group defaults not provided. Got \'{group_name}\'.')
+            msg = (
+                f"Not comparing current codenames to default. "
+                f"Group defaults not provided. Got '{group_name}'."
+            )
             if self.raise_on_warning:
                 raise PermissionsInspectorWarning(msg)
             else:
-                sys.stdout.write(style.WARNING(f' * Warning: {msg}\n'))
+                sys.stdout.write(style.WARNING(f" * Warning: {msg}\n"))
         else:
             default_codenames.sort()
             actual_codenames = self.get_codenames(group_name)
 
             if len(actual_codenames) != len(default_codenames):
-                sys.stdout.write(style.ERROR(
-                    f'Possible duplicate codenames found. See actual codenames '
-                    f'for group {group_name}\n'))
-                print('default_codenames')
+                sys.stdout.write(
+                    style.ERROR(
+                        f"Possible duplicate codenames found. See actual codenames "
+                        f"for group {group_name}\n"
+                    )
+                )
+                print("default_codenames")
                 pprint(self.get_duplicates(default_codenames))
-                print('actual_codenames')
+                print("actual_codenames")
                 pprint(self.get_duplicates(actual_codenames))
 
-            dedup_actual_codenames = self.get_unique_codenames(
-                actual_codenames)
-            dedup_default_codenames = self.get_unique_codenames(
-                default_codenames)
+            dedup_actual_codenames = self.get_unique_codenames(actual_codenames)
+            dedup_default_codenames = self.get_unique_codenames(default_codenames)
             if dedup_default_codenames != dedup_actual_codenames:
                 if len(dedup_default_codenames) < len(dedup_actual_codenames):
                     if self.verbose:
                         pprint(dedup_actual_codenames)
                     raise PermissionsInspectorError(
-                        f'When comparing Permissions codenames to the default, '
-                        f'some codenames are not expected. '
-                        f'Got {len(dedup_default_codenames)} defaults != '
-                        f'{len(dedup_actual_codenames)} actual. '
-                        f'See group {group_name}. (1)')
+                        f"When comparing Permissions codenames to the default, "
+                        f"some codenames are not expected. "
+                        f"Got {len(dedup_default_codenames)} defaults != "
+                        f"{len(dedup_actual_codenames)} actual. "
+                        f"See group {group_name}. (1)"
+                    )
                 elif len(dedup_default_codenames) > len(dedup_actual_codenames):
                     raise PermissionsInspectorError(
-                        f'When comparing Permissions codenames to the default, '
-                        'some expected codenames are missing. '
-                        f'Got {len(dedup_default_codenames)} defaults != '
-                        f'{len(dedup_actual_codenames)} actual. '
-                        f'See group {group_name}. (2)')
+                        f"When comparing Permissions codenames to the default, "
+                        "some expected codenames are missing. "
+                        f"Got {len(dedup_default_codenames)} defaults != "
+                        f"{len(dedup_actual_codenames)} actual. "
+                        f"See group {group_name}. (2)"
+                    )
                 else:
                     error_msg = (
-                        f'When comparing Permissions codenames to the default, '
-                        f'codenames are incorrect. See group {group_name}. '
-                        f'default_codename not in actual_codename: '
-                        f'{[x for x in default_codenames if x not in actual_codenames]}. '
-                        f'actual_codename not in default_codename: '
-                        f'{[x for x in actual_codenames if x not in default_codenames]}. (3)')
+                        f"When comparing Permissions codenames to the default, "
+                        f"codenames are incorrect. See group {group_name}. "
+                        f"default_codename not in actual_codename: "
+                        f"{[x for x in default_codenames if x not in actual_codenames]}. "
+                        f"actual_codename not in default_codename: "
+                        f"{[x for x in actual_codenames if x not in default_codenames]}. (3)"
+                    )
                     if print_exception:
-                        sys.stdout.write(style.ERROR(f'{error_msg}\n'))
+                        sys.stdout.write(style.ERROR(f"{error_msg}\n"))
                     else:
                         raise PermissionsInspectorError(error_msg)
 
@@ -247,8 +275,10 @@ class PermissionsInspector:
         """
         defaults = self.default_codenames.get(group_name)
         existing = [x for x in self.get_codenames(group_name)]
-        return {'unexpected': [x for x in existing if x not in defaults],
-                'missing': [x for x in defaults if x not in existing]}
+        return {
+            "unexpected": [x for x in existing if x not in defaults],
+            "missing": [x for x in defaults if x not in existing],
+        }
 
     def remove_codenames(self, group_name=None, codenames=None):
         """Remove persisted codenames.
@@ -261,7 +291,8 @@ class PermissionsInspector:
         """
         group = self.group_model_cls().objects.get(name=group_name)
         deleted = group.permissions.filter(
-            group__name=group_name, codename__in=codenames).delete()
+            group__name=group_name, codename__in=codenames
+        ).delete()
         return deleted
 
     def validate_pii(self):
@@ -270,12 +301,15 @@ class PermissionsInspector:
         for group_name in self.group_names:
             if group_name not in [PII, PII_VIEW]:
                 group = self.group_model_cls().objects.get(name=group_name)
-                codenames = [x.codename for x in group.permissions.filter(
-                    group__name=group_name)]
+                codenames = [
+                    x.codename for x in group.permissions.filter(group__name=group_name)
+                ]
                 deleted = group.permissions.filter(
-                    group__name=group_name, codename__in=[
-                        x for x in codenames if x in PII]).delete()
+                    group__name=group_name,
+                    codename__in=[x for x in codenames if x in PII],
+                ).delete()
                 if deleted[0]:
                     raise PermissionsInspectorWarning(
-                        f'Group unexpectedly permits PII codenames. Got {deleted}. '
-                        f'See group_name {group_name}.')
+                        f"Group unexpectedly permits PII codenames. Got {deleted}. "
+                        f"See group_name {group_name}."
+                    )

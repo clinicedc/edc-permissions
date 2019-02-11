@@ -10,7 +10,6 @@ from ..permissions_updater import PermissionsUpdater
 
 
 class TestPermissionsInspector(TestCase):
-
     def setUp(self):
         Group.objects.filter(name__in=DEFAULT_GROUP_NAMES).delete()
         self.perms = PermissionsUpdater(verbose=False)
@@ -22,13 +21,13 @@ class TestPermissionsInspector(TestCase):
                 pprint(DEFAULT_CODENAMES.get(group_name))
                 pprint(inspector.get_codenames(group_name))
             self.assertEqual(
-                DEFAULT_CODENAMES.get(group_name),
-                inspector.get_codenames(group_name))
+                DEFAULT_CODENAMES.get(group_name), inspector.get_codenames(group_name)
+            )
 
     def test_invalid_group_name(self):
         with self.assertRaises(PermissionsInspectorError) as cm:
             inspector = PermissionsInspector()
-            inspector.get_codenames('BLAH')
+            inspector.get_codenames("BLAH")
         # print(cm.exception.message)
         self.assertEqual(cm.exception.code, INVALID_GROUP_NAME)
 
