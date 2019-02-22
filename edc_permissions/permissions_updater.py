@@ -4,7 +4,11 @@ from copy import copy
 from django.apps import apps as django_apps
 from django.contrib.auth.models import Group, Permission, User
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import (
+    ObjectDoesNotExist,
+    ValidationError,
+    MultipleObjectsReturned,
+)
 from django.db.models import Q
 from edc_navbar.site_navbars import site_navbars
 
@@ -25,7 +29,7 @@ from .constants import (
     DEFAULT_AUDITOR_APP_LABELS,
     LAB_DASHBOARD_CODENAMES,
 )
-from pprint import pprint
+from .utils import repair_historical_permissions, remove_duplicates_in_groups
 
 DUPLICATE_CODENAME = "duplicate_codename"
 MISSING_CODENAME = "missing_navbar_codename"
@@ -85,11 +89,9 @@ class PermissionsUpdater:
     extra_group_names = None
     extra_pii_models = None
 
-    def __init__(self, verbose=None):
+    only_allow_historical_view_permissions = True
 
-        self.dashboard_codenames = copy(self.default_dashboard_codenames)
-        if self.extra_dashboard_codenames:
-            self.dashboard_codenames.update(**self.extra_dashboard_codenames)
+    def __init__(self, verbose=None):
 
         self.write = str if verbose is False else sys.stdout.write
 
@@ -105,13 +107,13 @@ class PermissionsUpdater:
         self.auditor_app_labels = list(set(self.auditor_app_labels))
         self.auditor_app_labels.sort()
 
-        self.group_names = copy(self.default_group_names or [])
-        if self.extra_group_names:
-            self.group_names.extend(self.extra_group_names or [])
-        self.group_names = list(set(self.group_names))
-        self.group_names.sort()
-
         self.check_app_labels()
+
+        repair_historical_permissions()
+
+        self.dashboard_codenames = copy(self.default_dashboard_codenames)
+        if self.extra_dashboard_codenames:
+            self.dashboard_codenames.update(**self.extra_dashboard_codenames)
 
         self.write("Adding or updating navbar permissions ...\n")
         site_navbars.update_permission_codenames(verbose=False)
@@ -120,6 +122,7 @@ class PermissionsUpdater:
         self.update_dashboard_codenames()
 
         self.write("Adding or updating groups ...\n")
+
         self.update_groups()
         self.write(
             f"  Groups are: "
@@ -127,34 +130,13 @@ class PermissionsUpdater:
         )
         self.write("Adding or updating group permissions ...\n")
         self.update_group_permissions()
-        self.remove_historical_permissions()  # if not view
-        self.remove_duplicates()
+
+        if self.only_allow_historical_view_permissions:
+            self.remove_historical_group_permissions()
+
+        remove_duplicates_in_groups(self.group_names)
+
         self.write("Done.\n")
-
-    def remove_duplicates(self):
-        for group_name in self.group_names:
-            group = Group.objects.get(name=group_name)
-            codenames = [
-                f"{x.content_type.app_label}.{x.codename}"
-                for x in group.permissions.all().order_by(
-                    "content_type__app_label", "codename"
-                )
-            ]
-            duplicates = list(set([x for x in codenames if codenames.count(x) > 1]))
-            if duplicates:
-                sys.stdout.write(
-                    f"  ! Duplicate permissions found for group {group_name}.\n"
-                    f"  !   duplicates will be removed, but you should rerun the \n"
-                    f"  !   permissions updater."
-                )
-                print(group_name)
-                pprint(duplicates)
-                for codename in codenames:
-                    permission = Permission.objects.filter(codename=codename)[0]
-                    group.permissions.remove(permission)
-                    group.permissions.add(permission)
-
-        pass
 
     def extra_auditor_group_permissions(self, group):
         """Override for custom group permissions.
@@ -190,6 +172,12 @@ class PermissionsUpdater:
         """Add/Deletes group model instances to match the
         the given list of group names.
         """
+        self.group_names = copy(self.default_group_names or [])
+        if self.extra_group_names:
+            self.group_names.extend(self.extra_group_names or [])
+        self.group_names = list(set(self.group_names))
+        self.group_names.sort()
+
         for name in self.group_names:
             try:
                 Group.objects.get(name=name)
@@ -205,38 +193,38 @@ class PermissionsUpdater:
         to INSTALLED_APPS.
         """
         for group_name in self.default_group_names:
-            expression = f"update_{group_name.lower()}_group_permissions"
+            expression = f"update_{group_name.lower().strip()}_group_permissions"
             self.write(f" * adding permissions to group {group_name}.\n")
             exec(f"self.{expression}()")
         for group_name in [
             n for n in self.group_names if n not in self.default_group_names
         ]:
-            expression = f"update_{group_name.lower()}_group_permissions"
+            expression = f"update_{group_name.lower().strip()}_group_permissions"
             self.write(f" * adding permissions to group {group_name}.\n")
             try:
+                getattr(self, expression)
+            except AttributeError:
+                raise PermissionsUpdaterError(
+                    f"Missing method for group {group_name}. "
+                    f"Expected method '{expression}'.",
+                    code="missing_method",
+                )
+            else:
                 exec(f"self.{expression}()")
-            except AttributeError as e:
-                if expression in str(e):
-                    raise PermissionsUpdaterError(
-                        f"Missing method for group {group_name}. "
-                        f"Expected method '{expression}'.",
-                        code="missing_method",
-                    )
-                else:
-                    print(expression)
-                    raise
 
     def add_navbar_permissions(self, group=None, group_name=None):
         """Adds the navbar permissions from edc_navbar.
         """
         group = group or Group.objects.get(name=group_name)
         codenames = self.navbar_codenames.get(group.name)
-        self.add_permissions(group=group, codenames=codenames)
+        self.add_permissions_to_group(group=group, codenames=codenames)
 
-    def add_permissions(
+    def add_permissions_to_group(
         self, group=None, group_name=None, codenames=None, exception_code=None
     ):
         """Adds a permission to a group for the given criteria.
+
+        Note: codenames is a list of items of format app_label.codename
         """
         opts = {}
         codenames = codenames or []
@@ -247,12 +235,12 @@ class PermissionsUpdater:
                 app_label, codename = permission_codename.split(".")
             except ValueError as e:
                 raise PermissionsUpdaterError(
-                    f"Invalid codename for group. See {group}, "
+                    f"Invalid codename. See {group}, "
                     f"'{permission_codename}'. Got {e}."
                 )
             except AttributeError as e:
                 raise PermissionsUpdaterError(
-                    f"Invalid codename for group. See {group}, "
+                    f"Invalid codename. See {group}, "
                     f"'{permission_codename}'. Got {e}."
                 )
             opts.update(content_type__app_label=app_label, codename=codename)
@@ -260,10 +248,12 @@ class PermissionsUpdater:
                 permission = Permission.objects.get(**opts)
             except ObjectDoesNotExist as e:
                 raise PermissionsUpdaterError(
-                    f"{e}. Got {codename}", code=exception_code
+                    f"{e}. Got {app_label}.{codename}", code=exception_code
                 )
-            else:
-                group.permissions.add(permission)
+            except MultipleObjectsReturned as e:
+                Permission.objects.filter(**opts).last().delete()
+                permission = Permission.objects.get(**opts)
+            group.permissions.add(permission)
 
     def check_app_labels(self):
         pii_app_labels = [m.split(".")[0] for m in self.pii_models]
@@ -274,15 +264,18 @@ class PermissionsUpdater:
                 except LookupError as e:
                     raise PermissionsUpdaterError(e, code="lookup")
 
-    def remove_historical_permissions(self):
-        """Removes all permissions for historical models
-        except `view`.
+    def remove_historical_group_permissions(self, keep_actions=None):
+        """Removes all group permissions for historical models
+        except `view_historical`.
         """
+        keep_actions = keep_actions or ["view"]
         for group_name in self.group_names:
             group = Group.objects.get(name=group_name)
-            group.permissions.filter(codename__contains="historical").exclude(
-                codename__startswith="view"
-            ).delete()
+            for action in keep_actions:
+                for permission in group.permissions.filter(
+                    codename__contains="historical"
+                ).exclude(codename__startswith=action):
+                    group.permissions.remove(permission)
 
     def add_dashboard_permissions(self, group, dashboard_category=None, codename=None):
         """Adds dashboard permissions linked to edc_dashboard
@@ -370,10 +363,13 @@ class PermissionsUpdater:
         group_name = EXPORT
         group = Group.objects.get(name=group_name)
         group.permissions.clear()
-        for permission in Permission.objects.filter(
-            content_type__app_label="edc_export"
-        ):
-            group.permissions.add(permission)
+        permission_codenames = [
+            f"{permission.content_type.app_label}.{permission.codename}"
+            for permission in Permission.objects.filter(
+                content_type__app_label="edc_export"
+            )
+        ]
+        self.add_permissions_to_group(group=group, codenames=permission_codenames)
         self.extra_export_group_permissions(group)
         self.add_navbar_permissions(group=group)
 

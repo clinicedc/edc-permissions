@@ -209,11 +209,14 @@ class PermissionsInspector:
                 print("actual_codenames")
                 pprint(self.get_duplicates(actual_codenames))
 
-            dedup_actual_codenames = self.get_unique_codenames(actual_codenames)
-            dedup_default_codenames = self.get_unique_codenames(default_codenames)
+            dedup_actual_codenames = self.get_unique_codenames(
+                actual_codenames)
+            dedup_default_codenames = self.get_unique_codenames(
+                default_codenames)
             if dedup_default_codenames != dedup_actual_codenames:
                 if len(dedup_default_codenames) < len(dedup_actual_codenames):
                     if self.verbose:
+                        pprint(dedup_default_codenames)
                         pprint(dedup_actual_codenames)
                     raise PermissionsInspectorError(
                         f"When comparing Permissions codenames to the default, "
