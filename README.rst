@@ -1,4 +1,4 @@
-|pypi| |travis| |coverage|
+|pypi| |travis| |codecov| |downloads|
 
 edc-permissions
 ---------------
@@ -64,5 +64,9 @@ Permissions don't always naturally link to a model. In such cases, a dummy model
 .. |travis| image:: https://travis-ci.com/clinicedc/edc-permissions.svg?branch=develop
     :target: https://travis-ci.com/clinicedc/edc-permissions
     
-.. |coverage| image:: https://coveralls.io/repos/github/clinicedc/edc-permissions/badge.svg?branch=develop
-    :target: https://coveralls.io/github/clinicedc/edc-permissions?branch=develop
+.. |codecov| image:: https://codecov.io/gh/clinicedc/edc-permissions/branch/develop/graph/badge.svg
+  :target: https://codecov.io/gh/clinicedc/edc-permissions
+
+.. |downloads| image:: https://pepy.tech/badge/edc-permissions
+   :target: https://pepy.tech/project/edc-permissions
+ 
