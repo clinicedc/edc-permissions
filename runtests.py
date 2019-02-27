@@ -83,6 +83,7 @@ DEFAULT_SETTINGS = dict(
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
         "edc_dashboard.middleware.DashboardMiddleware",
         "edc_subject_dashboard.middleware.DashboardMiddleware",
+        "edc_lab_dashboard.middleware.DashboardMiddleware",
     ],
 
     LANGUAGE_CODE='en-us',
