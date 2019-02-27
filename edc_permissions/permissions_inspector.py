@@ -115,27 +115,28 @@ class PermissionsInspector:
         for group_name in self.default_codenames:
             default_codenames = copy(self.default_codenames.get(group_name))
             default_codenames.sort()
+            # pprint(default_codenames)
             for default_codename in default_codenames:
                 if self.verbose:
                     print(group_name, default_codename)
                 app_label, codename = self.get_codename_from(default_codename)
+                opts = dict(content_type__app_label=app_label, codename=codename)
                 try:
                     self.group_model_cls().objects.get(name=group_name).permissions.get(
-                        content_type__app_label=app_label, codename=codename
+                        **opts
                     )
                 except ObjectDoesNotExist:
                     raise PermissionsInspectorError(
                         f"Default codename does not exist for group. "
                         f"Group name is {group_name}. "
-                        f"Expected codenames are {default_codenames}. "
-                        f"Searched group.permissions for {default_codename}.",
+                        f"Searched group.permissions for {default_codename}. "
+                        f"opts={opts}.",
                         code=MISSING_DEFAULT_CODENAME,
                     )
                 except MultipleObjectsReturned as e:
                     raise PermissionsInspectorError(
                         f"{e} "
                         f"Group name is {group_name}. "
-                        f"Expected codenames are {default_codenames}. "
                         f"Searched group.permissions for {default_codename}.",
                         code=MULTIPLE_CODENAMES,
                     )
@@ -201,7 +202,8 @@ class PermissionsInspector:
                 sys.stdout.write(
                     style.ERROR(
                         f"Possible duplicate codenames found. See actual codenames "
-                        f"for group {group_name}\n"
+                        f"for group {group_name}. "
+                        f"{len(actual_codenames)}/{len(default_codenames)}\n"
                     )
                 )
                 print("default_codenames")
@@ -209,15 +211,31 @@ class PermissionsInspector:
                 print("actual_codenames")
                 pprint(self.get_duplicates(actual_codenames))
 
-            dedup_actual_codenames = self.get_unique_codenames(
-                actual_codenames)
-            dedup_default_codenames = self.get_unique_codenames(
-                default_codenames)
+            dedup_actual_codenames = self.get_unique_codenames(actual_codenames)
+            dedup_default_codenames = self.get_unique_codenames(default_codenames)
             if dedup_default_codenames != dedup_actual_codenames:
                 if len(dedup_default_codenames) < len(dedup_actual_codenames):
                     if self.verbose:
+                        print("*****default*****")
                         pprint(dedup_default_codenames)
+                        print("*****actual*****")
                         pprint(dedup_actual_codenames)
+                        print("*****diff default not in actual*****")
+                        pprint(
+                            [
+                                x
+                                for x in dedup_default_codenames
+                                if x not in dedup_actual_codenames
+                            ]
+                        )
+                        print("*****diff actual not in default*****")
+                        pprint(
+                            [
+                                x
+                                for x in dedup_actual_codenames
+                                if x not in dedup_default_codenames
+                            ]
+                        )
                     raise PermissionsInspectorError(
                         f"When comparing Permissions codenames to the default, "
                         f"some codenames are not expected. "

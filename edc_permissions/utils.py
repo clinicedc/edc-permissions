@@ -8,39 +8,60 @@ from django.core.exceptions import ObjectDoesNotExist
 from pprint import pprint
 
 
-def repair_historical_permissions():
+def reset_historical_model_codenames(dry_run=None, clear_existing=None):
+    """Ensures all historical model codenames exist in Django's Permission
+    model.
+    """
+    created_codenames = []
+    updated_names = []
     actions = ["add", "change", "delete", "view"]
     if django.VERSION >= (2, 1):
         actions.append("view")
-    Permission.objects.filter(codename__contains="historical").delete()
     for app in django_apps.get_app_configs():
         for model in app.get_models():
             try:
-                model.history
+                manager = getattr(model, model._meta.simple_history_manager_attribute)
             except AttributeError:
                 pass
             else:
+                historical_model = manager.model
+                app_label, model_name = historical_model._meta.label_lower.split(".")
+                content_type = ContentType.objects.get(
+                    app_label=app_label, model=model_name
+                )
+                if not dry_run and clear_existing:
+                    Permission.objects.filter(content_type=content_type).delete()
                 for action in actions:
-                    app_label, model_name = model._meta.label_lower.split(".")
-                    content_type = ContentType.objects.get(
-                        app_label=app_label, model=model_name
-                    )
+                    name = f"Can {action} {historical_model._meta.verbose_name}"
+                    codename = f"{action}_{model_name}"
                     try:
                         perm = Permission.objects.get(
-                            content_type=content_type,
-                            codename=f"{action}_historical{model_name}",
+                            content_type=content_type, codename=codename
                         )
                     except ObjectDoesNotExist:
-                        Permission.objects.create(
-                            content_type=content_type,
-                            name=f"Can {action} historical {model._meta.verbose_name}",
-                            codename=f"{action}_historical{model_name}",
-                        )
+                        if not dry_run:
+                            Permission.objects.create(
+                                content_type=content_type, name=name, codename=codename
+                            )
+                        created_codenames.append(codename)
                     else:
-                        perm.name = (
-                            f"Can {action} historical {model._meta.verbose_name}"
-                        )
-                        perm.save()
+                        if perm.name != name:
+                            if not dry_run:
+                                perm.name = name
+                                perm.save()
+                            updated_names.append(name)
+    if dry_run:
+        print("This is a dry-run. No modifications were made.")
+    if created_codenames:
+        print("The following permission.codenames were be added:")
+        pprint(created_codenames)
+    else:
+        print("No permission.codenames were added.")
+    if updated_names:
+        print("The following permission.names were updated:")
+        pprint(updated_names)
+    else:
+        print("No permission.names were updated.")
 
 
 def remove_duplicates_in_groups(group_names):

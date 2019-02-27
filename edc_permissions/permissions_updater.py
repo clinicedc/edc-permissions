@@ -29,7 +29,7 @@ from .constants import (
     DEFAULT_AUDITOR_APP_LABELS,
     LAB_DASHBOARD_CODENAMES,
 )
-from .utils import repair_historical_permissions, remove_duplicates_in_groups
+from .utils import reset_historical_model_codenames, remove_duplicates_in_groups
 
 DUPLICATE_CODENAME = "duplicate_codename"
 MISSING_CODENAME = "missing_navbar_codename"
@@ -109,7 +109,7 @@ class PermissionsUpdater:
 
         self.check_app_labels()
 
-        repair_historical_permissions()
+        reset_historical_model_codenames()
 
         self.dashboard_codenames = copy(self.default_dashboard_codenames)
         if self.extra_dashboard_codenames:
@@ -195,7 +195,7 @@ class PermissionsUpdater:
         for group_name in self.default_group_names:
             expression = f"update_{group_name.lower().strip()}_group_permissions"
             self.write(f" * adding permissions to group {group_name}.\n")
-            exec(f"self.{expression}()")
+            getattr(self, expression)()
         for group_name in [
             n for n in self.group_names if n not in self.default_group_names
         ]:
@@ -210,7 +210,7 @@ class PermissionsUpdater:
                     code="missing_method",
                 )
             else:
-                exec(f"self.{expression}()")
+                getattr(self, expression)()
 
     def add_navbar_permissions(self, group=None, group_name=None):
         """Adds the navbar permissions from edc_navbar.
@@ -286,8 +286,7 @@ class PermissionsUpdater:
             codenames.append(codename)
         if dashboard_category:
             codenames.extend(
-                [c[0]
-                    for c in self.dashboard_codenames.get(dashboard_category, [])]
+                [c[0] for c in self.dashboard_codenames.get(dashboard_category, [])]
             )
         for codename in codenames:
             try:
@@ -370,8 +369,7 @@ class PermissionsUpdater:
                 content_type__app_label="edc_export"
             )
         ]
-        self.add_permissions_to_group(
-            group=group, codenames=permission_codenames)
+        self.add_permissions_to_group(group=group, codenames=permission_codenames)
         self.extra_export_group_permissions(group)
         self.add_navbar_permissions(group=group)
 
@@ -437,8 +435,7 @@ class PermissionsUpdater:
         group = Group.objects.get(name=group_name)
         group.permissions.clear()
         for permission in Permission.objects.filter(
-            content_type__app_label__in=[
-                "auth", "edc_auth", "edc_notification"]
+            content_type__app_label__in=["auth", "edc_auth", "edc_notification"]
         ):
             group.permissions.add(permission)
         self.add_navbar_permissions(group=group)
@@ -451,7 +448,7 @@ class PermissionsUpdater:
         for permission in Permission.objects.filter(
             content_type__app_label__in=self.auditor_app_labels,
             codename__startswith="view",
-        ):
+        ).order_by("content_type", "codename"):
             group.permissions.add(permission)
         self.add_edc_action_permissions(group)
         self.add_edc_appointment_permissions(group)
@@ -461,8 +458,7 @@ class PermissionsUpdater:
             group.permissions.remove(permission)
         for permission in Permission.objects.filter(codename__startswith="delete"):
             group.permissions.remove(permission)
-        self.add_dashboard_permissions(
-            group, codename="view_lab_requisition_listboard")
+        self.add_dashboard_permissions(group, codename="view_lab_requisition_listboard")
         self.add_navbar_permissions(group=group)
 
     def update_clinic_group_permissions(self):
@@ -474,8 +470,7 @@ class PermissionsUpdater:
         self.add_edc_offstudy_permissions(group)
         self.add_edc_action_permissions(group)
         self.add_navbar_permissions(group=group)
-        self.add_dashboard_permissions(
-            group, codename="view_lab_requisition_listboard")
+        self.add_dashboard_permissions(group, codename="view_lab_requisition_listboard")
 
     def update_administration_group_permissions(self):
         group_name = ADMINISTRATION
@@ -511,8 +506,7 @@ class PermissionsUpdater:
         pii_model_names = [m.split(".")[1] for m in self.pii_models]
         if view_only:
             permissions = Permission.objects.filter(
-                (Q(codename__startswith="view") | Q(
-                    codename__startswith="display")),
+                (Q(codename__startswith="view") | Q(codename__startswith="display")),
                 content_type__model__in=pii_model_names,
             )
         else:
@@ -521,6 +515,16 @@ class PermissionsUpdater:
             )
         for permission in permissions:
             group.permissions.add(permission)
+
+        for model in self.pii_models:
+            permissions = Permission.objects.filter(
+                codename__startswith="view",
+                content_type__app_label=model.split(".")[0],
+                content_type__model=f"historical{model.split('.')[1]}",
+            )
+            for permission in permissions:
+                group.permissions.add(permission)
+
         for permission in Permission.objects.filter(
             content_type__app_label="edc_registration",
             codename__in=[
@@ -530,17 +534,19 @@ class PermissionsUpdater:
             ],
         ):
             group.permissions.remove(permission)
+        permission = Permission.objects.get(
+            content_type__app_label="edc_registration",
+            codename="view_historicalregisteredsubject",
+        )
+        group.permissions.add(permission)
 
     def add_edc_action_permissions(self, group):
-        for permission in Permission.objects.filter(
+        permissions = Permission.objects.filter(
             content_type__app_label="edc_action_item"
         ).exclude(
-            codename__in=[
-                "edc_action_item.add_actiontype",
-                "edc_action_item.change_actiontype",
-                "edc_action_item.delete_actiontype",
-            ]
-        ):
+            codename__in=["add_actiontype", "change_actiontype", "delete_actiontype"]
+        )
+        for permission in permissions:
             group.permissions.add(permission)
 
     def add_edc_appointment_permissions(self, group):
