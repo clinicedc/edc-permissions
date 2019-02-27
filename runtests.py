@@ -97,6 +97,11 @@ DEFAULT_SETTINGS = dict(
     EMAIL_CONTACTS={},
     EMAIL_ENABLED=False,
 
+    DASHBOARD_URL_NAMES={
+        "subject_listboard_url": "edc_subject_dashboard:subject_listboard_url",
+        "subject_dashboard_url": "edc_subject_dashboard:subject_dashboard_url",
+    },
+
     DEFAULT_FILE_STORAGE='inmemorystorage.InMemoryStorage',
     MIGRATION_MODULES=DisableMigrations(),
     PASSWORD_HASHERS=('django.contrib.auth.hashers.MD5PasswordHasher', ),
