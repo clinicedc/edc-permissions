@@ -61,7 +61,9 @@ class PermissionsUpdater:
     default_group_names = DEFAULT_GROUP_NAMES
     default_pii_models = DEFAULT_PII_MODELS
     default_auditor_app_labels = DEFAULT_AUDITOR_APP_LABELS
-    default_dashboard_codenames = {LAB: LAB_DASHBOARD_CODENAMES}
+    default_dashboard_codenames = {
+        LAB: LAB_DASHBOARD_CODENAMES, "EDC": [
+            ("view_subject_review_listboard", "Can view Subject Review Listboard")]}
 
     navbar_codenames = {
         ADMINISTRATION: ["edc_navbar.nav_administration"],
@@ -277,16 +279,20 @@ class PermissionsUpdater:
                 ).exclude(codename__startswith=action):
                     group.permissions.remove(permission)
 
-    def add_dashboard_permissions(self, group, dashboard_category=None, codename=None):
+    def add_dashboard_permissions(self, group, dashboard_category=None, codename=None,
+                                  additional_codenames=None):
         """Adds dashboard permissions linked to edc_dashboard
         either by category or single codename.
         """
         codenames = []
         if codename:
             codenames.append(codename)
+        if additional_codenames:
+            codenames.extend(additional_codenames)
         if dashboard_category:
             codenames.extend(
-                [c[0] for c in self.dashboard_codenames.get(dashboard_category, [])]
+                [c[0]
+                    for c in self.dashboard_codenames.get(dashboard_category, [])]
             )
         for codename in codenames:
             try:
@@ -369,7 +375,8 @@ class PermissionsUpdater:
                 content_type__app_label="edc_export"
             )
         ]
-        self.add_permissions_to_group(group=group, codenames=permission_codenames)
+        self.add_permissions_to_group(
+            group=group, codenames=permission_codenames)
         self.extra_export_group_permissions(group)
         self.add_navbar_permissions(group=group)
 
@@ -435,7 +442,8 @@ class PermissionsUpdater:
         group = Group.objects.get(name=group_name)
         group.permissions.clear()
         for permission in Permission.objects.filter(
-            content_type__app_label__in=["auth", "edc_auth", "edc_notification"]
+            content_type__app_label__in=[
+                "auth", "edc_auth", "edc_notification"]
         ):
             group.permissions.add(permission)
         self.add_navbar_permissions(group=group)
@@ -445,6 +453,7 @@ class PermissionsUpdater:
         group = Group.objects.get(name=group_name)
         group.permissions.clear()
         self.extra_auditor_group_permissions(group)
+
         for permission in Permission.objects.filter(
             content_type__app_label__in=self.auditor_app_labels,
             codename__startswith="view",
@@ -458,7 +467,10 @@ class PermissionsUpdater:
             group.permissions.remove(permission)
         for permission in Permission.objects.filter(codename__startswith="delete"):
             group.permissions.remove(permission)
-        self.add_dashboard_permissions(group, codename="view_lab_requisition_listboard")
+        self.add_dashboard_permissions(
+            group, additional_codenames=[
+                "view_lab_requisition_listboard",
+                "view_subject_review_listboard"])
         self.add_navbar_permissions(group=group)
 
     def update_clinic_group_permissions(self):
@@ -470,7 +482,10 @@ class PermissionsUpdater:
         self.add_edc_offstudy_permissions(group)
         self.add_edc_action_permissions(group)
         self.add_navbar_permissions(group=group)
-        self.add_dashboard_permissions(group, codename="view_lab_requisition_listboard")
+        self.add_dashboard_permissions(
+            group, additional_codenames=[
+                "view_lab_requisition_listboard",
+                "view_subject_review_listboard"])
 
     def update_administration_group_permissions(self):
         group_name = ADMINISTRATION
@@ -506,7 +521,8 @@ class PermissionsUpdater:
         pii_model_names = [m.split(".")[1] for m in self.pii_models]
         if view_only:
             permissions = Permission.objects.filter(
-                (Q(codename__startswith="view") | Q(codename__startswith="display")),
+                (Q(codename__startswith="view") | Q(
+                    codename__startswith="display")),
                 content_type__model__in=pii_model_names,
             )
         else:
@@ -544,7 +560,8 @@ class PermissionsUpdater:
         permissions = Permission.objects.filter(
             content_type__app_label="edc_action_item"
         ).exclude(
-            codename__in=["add_actiontype", "change_actiontype", "delete_actiontype"]
+            codename__in=["add_actiontype",
+                          "change_actiontype", "delete_actiontype"]
         )
         for permission in permissions:
             group.permissions.add(permission)
