@@ -13,8 +13,11 @@ class TestGroupPermissions(TestCase):
 
     def setUp(self):
         self.updater = self.permissions_updater_cls(verbose=False)
-        self.inspector = PermissionsInspector(default_codenames=self.codenames)
+        self.inspector = PermissionsInspector(
+            default_codenames=self.codenames, verbose=True
+        )
 
+    @tag("compare_codenames")
     def test_codenames(self):
         for group in self.codenames:
             self.inspector.compare_codenames(group_name=group)

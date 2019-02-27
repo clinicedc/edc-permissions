@@ -267,9 +267,11 @@ DEFAULT_CODENAMES = {
         "edc_registration.display_lastname",
         "edc_registration.view_registeredsubject",
         "edc_locator.view_subjectlocator",
+        "edc_locator.view_historicalsubjectlocator",
     ],
     PII_VIEW: [
         "edc_locator.view_subjectlocator",
+        "edc_locator.view_historicalsubjectlocator",
         "edc_registration.display_dob",
         "edc_registration.display_firstname",
         "edc_registration.display_identity",
