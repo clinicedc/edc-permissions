@@ -101,6 +101,9 @@ DEFAULT_SETTINGS = dict(
         "subject_listboard_url": "edc_subject_dashboard:subject_listboard_url",
         "subject_dashboard_url": "edc_subject_dashboard:subject_dashboard_url",
     },
+    LAB_DASHBOARD_REQUISITION_MODEL='edc_lab.subjectrequisition',
+    LAB_DASHBOARD_URL_NAMES={},
+    LAB_DASHBOARD_BASE_TEMPLATES={},
 
     DEFAULT_FILE_STORAGE='inmemorystorage.InMemoryStorage',
     MIGRATION_MODULES=DisableMigrations(),
