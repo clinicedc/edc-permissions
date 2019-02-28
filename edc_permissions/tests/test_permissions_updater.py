@@ -42,6 +42,7 @@ class TestPermissionsUpdater(TestCase):
             except ObjectDoesNotExist:
                 self.fail(f"Group unexpectedly not created. Got {group_name} ")
 
+    @tag("1")
     def test_raises_if_missing_group_permissions_method(self):
         class MyPermissionsUpdater(PermissionsUpdater):
             extra_group_names = ["ERIK"]

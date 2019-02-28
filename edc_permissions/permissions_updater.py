@@ -29,7 +29,7 @@ from .constants import (
     DEFAULT_AUDITOR_APP_LABELS,
     LAB_DASHBOARD_CODENAMES,
 )
-from .utils import reset_historical_model_codenames, remove_duplicates_in_groups
+from .utils import HistoricalPermissionUpdater, remove_duplicates_in_groups
 
 DUPLICATE_CODENAME = "duplicate_codename"
 MISSING_CODENAME = "missing_navbar_codename"
@@ -61,7 +61,10 @@ class PermissionsUpdater:
     default_group_names = DEFAULT_GROUP_NAMES
     default_pii_models = DEFAULT_PII_MODELS
     default_auditor_app_labels = DEFAULT_AUDITOR_APP_LABELS
-    default_dashboard_codenames = {LAB: LAB_DASHBOARD_CODENAMES}
+    default_dashboard_codenames = {
+        LAB: LAB_DASHBOARD_CODENAMES,
+        "EDC": [("view_subject_review_listboard", "Can view Subject Review Listboard")],
+    }
 
     navbar_codenames = {
         ADMINISTRATION: ["edc_navbar.nav_administration"],
@@ -109,7 +112,8 @@ class PermissionsUpdater:
 
         self.check_app_labels()
 
-        reset_historical_model_codenames()
+        historical_permissions_updater = HistoricalPermissionUpdater()
+        historical_permissions_updater.reset_codenames()
 
         self.dashboard_codenames = copy(self.default_dashboard_codenames)
         if self.extra_dashboard_codenames:
@@ -277,13 +281,17 @@ class PermissionsUpdater:
                 ).exclude(codename__startswith=action):
                     group.permissions.remove(permission)
 
-    def add_dashboard_permissions(self, group, dashboard_category=None, codename=None):
+    def add_dashboard_permissions(
+        self, group, dashboard_category=None, codename=None, additional_codenames=None
+    ):
         """Adds dashboard permissions linked to edc_dashboard
         either by category or single codename.
         """
         codenames = []
         if codename:
             codenames.append(codename)
+        if additional_codenames:
+            codenames.extend(additional_codenames)
         if dashboard_category:
             codenames.extend(
                 [c[0] for c in self.dashboard_codenames.get(dashboard_category, [])]
@@ -445,6 +453,7 @@ class PermissionsUpdater:
         group = Group.objects.get(name=group_name)
         group.permissions.clear()
         self.extra_auditor_group_permissions(group)
+
         for permission in Permission.objects.filter(
             content_type__app_label__in=self.auditor_app_labels,
             codename__startswith="view",
@@ -458,7 +467,13 @@ class PermissionsUpdater:
             group.permissions.remove(permission)
         for permission in Permission.objects.filter(codename__startswith="delete"):
             group.permissions.remove(permission)
-        self.add_dashboard_permissions(group, codename="view_lab_requisition_listboard")
+        self.add_dashboard_permissions(
+            group,
+            additional_codenames=[
+                "view_lab_requisition_listboard",
+                "view_subject_review_listboard",
+            ],
+        )
         self.add_navbar_permissions(group=group)
 
     def update_clinic_group_permissions(self):
@@ -470,7 +485,13 @@ class PermissionsUpdater:
         self.add_edc_offstudy_permissions(group)
         self.add_edc_action_permissions(group)
         self.add_navbar_permissions(group=group)
-        self.add_dashboard_permissions(group, codename="view_lab_requisition_listboard")
+        self.add_dashboard_permissions(
+            group,
+            additional_codenames=[
+                "view_lab_requisition_listboard",
+                "view_subject_review_listboard",
+            ],
+        )
 
     def update_administration_group_permissions(self):
         group_name = ADMINISTRATION
