@@ -3,7 +3,7 @@ edc-action-item==0.1.33
 edc-appointment==0.2.41
 edc-auth==0.1.16
 edc-dashboard==0.2.25
-edc-export
+edc-export==0.2.19
 edc-lab
 edc-lab-dashboard
 edc-locator
