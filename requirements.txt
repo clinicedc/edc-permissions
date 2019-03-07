@@ -11,5 +11,5 @@ edc-metadata==0.2.27
 edc-metadata-rules==0.1.13
 edc-navbar==0.1.12
 edc-offstudy==0.2.15
-edc-pharmacy
+edc-pharmacy==0.1.2a6
 edc-registration
