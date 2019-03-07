@@ -10,6 +10,6 @@ edc-locator==0.2.22
 edc-metadata==0.2.27
 edc-metadata-rules==0.1.13
 edc-navbar==0.1.12
-edc-offstudy
+edc-offstudy==0.2.15
 edc-pharmacy
 edc-registration
