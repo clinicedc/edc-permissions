@@ -1,5 +1,5 @@
 django-crypto-fields==0.1.21
-edc-action-item
+edc-action-item==0.1.33
 edc-appointment
 edc-auth
 edc-dashboard
