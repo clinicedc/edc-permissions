@@ -6,7 +6,7 @@ edc-dashboard==0.2.25
 edc-export==0.2.19
 edc-lab==0.2.35
 edc-lab-dashboard==0.1.21
-edc-locator
+edc-locator==0.2.22
 edc-metadata
 edc-metadata-rules
 edc-navbar
