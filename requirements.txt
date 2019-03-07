@@ -5,7 +5,7 @@ edc-auth==0.1.16
 edc-dashboard==0.2.25
 edc-export==0.2.19
 edc-lab==0.2.35
-edc-lab-dashboard
+edc-lab-dashboard==0.1.21
 edc-locator
 edc-metadata
 edc-metadata-rules
