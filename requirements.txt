@@ -1,6 +1,6 @@
 django-crypto-fields==0.1.21
 edc-action-item==0.1.33
-edc-appointment
+edc-appointment==0.2.41
 edc-auth
 edc-dashboard
 edc-export
