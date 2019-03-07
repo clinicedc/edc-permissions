@@ -4,7 +4,7 @@ edc-appointment==0.2.41
 edc-auth==0.1.16
 edc-dashboard==0.2.25
 edc-export==0.2.19
-edc-lab
+edc-lab==0.2.35
 edc-lab-dashboard
 edc-locator
 edc-metadata
