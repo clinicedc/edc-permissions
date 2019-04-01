@@ -119,12 +119,6 @@ class PermissionsUpdater:
         if self.extra_dashboard_codenames:
             self.dashboard_codenames.update(**self.extra_dashboard_codenames)
 
-        self.write("Adding or updating navbar permissions ...\n")
-        site_navbars.update_permission_codenames(verbose=False)
-
-        self.write("Adding or updating dashboard permissions ...\n")
-        self.update_dashboard_codenames()
-
         self.write("Adding or updating groups ...\n")
 
         self.update_groups()
@@ -132,6 +126,12 @@ class PermissionsUpdater:
             f"  Groups are: "
             f"{', '.join([obj.name for obj in Group.objects.all().order_by('name')])}\n"
         )
+        self.write("Adding or updating navbar permissions ...\n")
+        site_navbars.update_permission_codenames(verbose=False)
+
+        self.write("Adding or updating dashboard permissions ...\n")
+        self.update_dashboard_codenames()
+
         self.write("Adding or updating group permissions ...\n")
         self.update_group_permissions()
 
@@ -252,7 +252,8 @@ class PermissionsUpdater:
                 permission = Permission.objects.get(**opts)
             except ObjectDoesNotExist as e:
                 raise PermissionsUpdaterError(
-                    f"{e}. Got {app_label}.{codename}", code=exception_code
+                    f"{e}. Got {app_label}.{codename}. Options {opts}",
+                    code=exception_code
                 )
             except MultipleObjectsReturned:
                 Permission.objects.filter(**opts).last().delete()
@@ -294,7 +295,8 @@ class PermissionsUpdater:
             codenames.extend(additional_codenames)
         if dashboard_category:
             codenames.extend(
-                [c[0] for c in self.dashboard_codenames.get(dashboard_category, [])]
+                [c[0]
+                    for c in self.dashboard_codenames.get(dashboard_category, [])]
             )
         for codename in codenames:
             try:
@@ -377,7 +379,8 @@ class PermissionsUpdater:
                 content_type__app_label="edc_export"
             )
         ]
-        self.add_permissions_to_group(group=group, codenames=permission_codenames)
+        self.add_permissions_to_group(
+            group=group, codenames=permission_codenames)
         self.extra_export_group_permissions(group)
         self.add_navbar_permissions(group=group)
 
@@ -443,7 +446,8 @@ class PermissionsUpdater:
         group = Group.objects.get(name=group_name)
         group.permissions.clear()
         for permission in Permission.objects.filter(
-            content_type__app_label__in=["auth", "edc_auth", "edc_notification"]
+            content_type__app_label__in=[
+                "auth", "edc_auth", "edc_notification"]
         ):
             group.permissions.add(permission)
         self.add_navbar_permissions(group=group)
@@ -527,7 +531,8 @@ class PermissionsUpdater:
         pii_model_names = [m.split(".")[1] for m in self.pii_models]
         if view_only:
             permissions = Permission.objects.filter(
-                (Q(codename__startswith="view") | Q(codename__startswith="display")),
+                (Q(codename__startswith="view") | Q(
+                    codename__startswith="display")),
                 content_type__model__in=pii_model_names,
             )
         else:
@@ -565,7 +570,8 @@ class PermissionsUpdater:
         permissions = Permission.objects.filter(
             content_type__app_label="edc_action_item"
         ).exclude(
-            codename__in=["add_actiontype", "change_actiontype", "delete_actiontype"]
+            codename__in=["add_actiontype",
+                          "change_actiontype", "delete_actiontype"]
         )
         for permission in permissions:
             group.permissions.add(permission)

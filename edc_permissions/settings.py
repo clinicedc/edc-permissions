@@ -137,7 +137,7 @@ DASHBOARD_URL_NAMES = {
     "subject_dashboard_url": "edc_subject_dashboard:subject_dashboard_url",
 }
 
-LAB_DASHBOARD_REQUISITION_MODEL = "edc_lab.subjectrequisition"
+SUBJECT_REQUISITION_MODEL = "edc_lab.subjectrequisition"
 LAB_DASHBOARD_URL_NAMES = {}
 LAB_DASHBOARD_BASE_TEMPLATES = {}
 
