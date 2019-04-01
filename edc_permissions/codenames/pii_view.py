@@ -1,9 +1,9 @@
 from django.conf import settings
 
-view_subjectconsent = ".view_".join(
-    settings.SUBJECT_CONSENT_MODEL.split("."))
+view_subjectconsent = ".view_".join(settings.SUBJECT_CONSENT_MODEL.split("."))
 view_historicalsubjectconsent = ".view_historical".join(
-    settings.SUBJECT_CONSENT_MODEL.split("."))
+    settings.SUBJECT_CONSENT_MODEL.split(".")
+)
 
 
 pii_view = [
