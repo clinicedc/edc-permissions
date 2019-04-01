@@ -1,13 +1,9 @@
 from django.conf import settings
 
-view_subjectconsent = ".view_".join(
-    settings.SUBJECT_CONSENT_MODEL.split("."))
-add_subjectconsent = ".add_".join(
-    settings.SUBJECT_CONSENT_MODEL.split("."))
-change_subjectconsent = ".change_".join(
-    settings.SUBJECT_CONSENT_MODEL.split("."))
-delete_subjectconsent = ".delete_".join(
-    settings.SUBJECT_CONSENT_MODEL.split("."))
+view_subjectconsent = ".view_".join(settings.SUBJECT_CONSENT_MODEL.split("."))
+add_subjectconsent = ".add_".join(settings.SUBJECT_CONSENT_MODEL.split("."))
+change_subjectconsent = ".change_".join(settings.SUBJECT_CONSENT_MODEL.split("."))
+delete_subjectconsent = ".delete_".join(settings.SUBJECT_CONSENT_MODEL.split("."))
 
 
 pii = [
