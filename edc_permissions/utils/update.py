@@ -18,8 +18,6 @@ from ..utils import (
     add_permissions_to_group_by_app_label,
     remove_historical_group_permissions,
     add_permissions_to_group_by_codenames,
-)
-from .add_to_group_utils import (
     add_edc_action_permissions,
     add_edc_appointment_permissions,
     add_edc_offstudy_permissions,
@@ -27,7 +25,7 @@ from .add_to_group_utils import (
     add_edc_navbar_permissions,
     add_edc_reference_permissions,
 )
-from .pii_updater import PiiUpdater
+from ..pii_updater import PiiUpdater
 
 
 def update_account_manager_group_permissions(extra_codenames=None):
@@ -99,7 +97,8 @@ def update_data_manager_group_permissions(extra_codenames=None):
     group_name = DATA_MANAGER
     group = Group.objects.get(name=group_name)
     group.permissions.clear()
-    add_permissions_to_group_by_app_label(group=group, app_label="edc_metadata")
+    add_permissions_to_group_by_app_label(
+        group=group, app_label="edc_metadata")
     add_edc_navbar_permissions(group=group)
     add_permissions_to_group_by_codenames(group, extra_codenames)
     remove_historical_group_permissions(group=group)

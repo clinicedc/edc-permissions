@@ -1,6 +1,7 @@
-from .create import create_edc_dashboard_permissions, create_edc_navbar_permissions
 from .groups_updater import GroupsUpdater
-from .update import (
+from .utils import (
+    create_edc_dashboard_permissions,
+    create_edc_navbar_permissions,
     update_account_manager_group_permissions,
     update_administration_group_permissions,
     update_auditor_group_permissions,

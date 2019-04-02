@@ -30,11 +30,14 @@ class GroupsUpdater:
         self._group_names = None
         self.verbose = verbose
         self.create_or_update_groups()
-        self.ensure_users_in_group(ADMINISTRATION, users_by_groups=[CLINIC, LAB])
+        self.ensure_users_in_group(
+            ADMINISTRATION, users_by_groups=[CLINIC, LAB])
         self.ensure_users_in_group(PII, users_by_groups=[CLINIC])
         self.ensure_users_in_group(PII_VIEW, users_by_groups=[LAB, PHARMACY])
-        self.ensure_users_not_in_group(PII, users_by_groups=[AUDITOR, LAB, PHARMACY])
-        self.ensure_users_not_in_group(PII, users_by_groups=[AUDITOR, LAB, PHARMACY])
+        self.ensure_users_not_in_group(
+            PII, users_by_groups=[AUDITOR, LAB, PHARMACY])
+        self.ensure_users_not_in_group(
+            PII, users_by_groups=[AUDITOR, LAB, PHARMACY])
         self.ensure_users_not_in_group(PII_VIEW, users_by_groups=[AUDITOR])
         remove_duplicates_in_groups(self.group_names)
 

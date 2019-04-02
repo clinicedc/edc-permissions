@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group, Permission
 from django.db.models import Q
 
-from ..constants import PII, PII_VIEW
+from .constants import PII, PII_VIEW
 
 
 class PiiUpdater:
@@ -49,7 +49,8 @@ class PiiUpdater:
         pii_model_names = [m.split(".")[1] for m in self.pii_models]
         if view_only:
             permissions = Permission.objects.filter(
-                (Q(codename__startswith="view") | Q(codename__startswith="display")),
+                (Q(codename__startswith="view") | Q(
+                    codename__startswith="display")),
                 content_type__model__in=pii_model_names,
             )
         else:

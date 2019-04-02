@@ -1,7 +1,8 @@
 from django.test import TestCase, tag
 
-from ..create import create_edc_dashboard_permissions, create_edc_navbar_permissions
-from ..update import (
+from ..utils import (
+    create_edc_dashboard_permissions,
+    create_edc_navbar_permissions,
     update_account_manager_group_permissions,
     update_administration_group_permissions,
     update_auditor_group_permissions,
@@ -77,7 +78,8 @@ class TestUpdaterMixins(TestCase):
 
     def test_data_manager(self):
         update_data_manager_group_permissions()
-        compare_codenames_for_group(group_name=DATA_MANAGER, expected=data_manager)
+        compare_codenames_for_group(
+            group_name=DATA_MANAGER, expected=data_manager)
 
     def test_auditors(self):
         update_auditor_group_permissions()
@@ -85,7 +87,8 @@ class TestUpdaterMixins(TestCase):
 
     def test_administrations(self):
         update_administration_group_permissions()
-        compare_codenames_for_group(group_name=ADMINISTRATION, expected=administration)
+        compare_codenames_for_group(
+            group_name=ADMINISTRATION, expected=administration)
 
     def test_account_manager(self):
         update_account_manager_group_permissions()
@@ -106,4 +109,5 @@ class TestUpdaterMixins(TestCase):
     def test_permissions_updater(self):
         PermissionsUpdater()
         for group_name, expected in DEFAULT_CODENAMES.items():
-            compare_codenames_for_group(group_name=group_name, expected=expected)
+            compare_codenames_for_group(
+                group_name=group_name, expected=expected)

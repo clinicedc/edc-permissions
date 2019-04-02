@@ -94,6 +94,25 @@ def compare_codenames_for_group(group_name=None, expected=None):
         pprint(compared)
 
 
+def create_permissions_from_tuples(model, codename_tpls):
+    """Creates custom permissions on "model".
+    """
+    if codename_tpls:
+        model_cls = django_apps.get_model(model)
+        content_type = ContentType.objects.get_for_model(model_cls)
+        for codename_tpl in codename_tpls:
+            _, codename, name = get_from_codename_tuple(
+                codename_tpl, model_cls._meta.app_label
+            )
+            try:
+                Permission.objects.get(
+                    codename=codename, content_type=content_type)
+            except ObjectDoesNotExist:
+                Permission.objects.create(
+                    name=name, codename=codename, content_type=content_type
+                )
+
+
 def get_from_codename_tuple(codename_tpl, app_label=None):
     value, name = codename_tpl
     try:
@@ -177,7 +196,8 @@ def remove_duplicates_in_groups(group_names):
                     "content_type__app_label", "codename"
                 )
             ]
-            duplicates = list(set([x for x in codenames if codenames.count(x) > 1]))
+            duplicates = list(
+                set([x for x in codenames if codenames.count(x) > 1]))
             if duplicates:
                 if i > 0:
                     sys.stdout.write(
@@ -197,6 +217,13 @@ def remove_duplicates_in_groups(group_names):
 
 def remove_permissions_from_group_by_codenames(group=None, codenames=None):
     for permission in Permission.objects.filter(codename__in=codenames):
+        group.permissions.remove(permission)
+
+
+def remove_permissions_from_group_by_model(group=None, model=None):
+    model_cls = django_apps.get_model(model)
+    content_type = ContentType.objects.get_for_model(model_cls)
+    for permission in Permission.objects.filter(content_type=content_type):
         group.permissions.remove(permission)
 
 

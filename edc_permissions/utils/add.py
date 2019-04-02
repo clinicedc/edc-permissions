@@ -1,18 +1,19 @@
 from django.contrib.auth.models import Permission
 
 from ..constants import NAVBAR_CODENAMES, DASHBOARD_CODENAMES
-from ..utils import (
+from .generic import (
+    add_permissions_to_group_by_app_label,
     add_permissions_to_group_by_tuples,
-    verify_codename_exists,
-    make_view_only_model,
     make_view_only_app_label,
+    make_view_only_model,
+    verify_codename_exists,
 )
-from edc_permissions.utils import add_permissions_to_group_by_app_label
 
 
 def add_edc_action_permissions(group, view_only=None, allow_delete=None):
 
-    permissions = Permission.objects.filter(content_type__app_label="edc_action_item")
+    permissions = Permission.objects.filter(
+        content_type__app_label="edc_action_item")
     for permission in permissions:
         group.permissions.add(permission)
 
