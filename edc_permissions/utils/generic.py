@@ -130,6 +130,30 @@ def get_from_codename_tuple(codename_tpl, app_label=None):
     return app_label, codename, name
 
 
+def get_from_dotted_codename(
+    codename=None, default_app_label=None, **kwargs
+):
+    if not codename:
+        raise PermissionsCodenameError(
+            f"Invalid codename. May not be None. Opts={kwargs}."
+        )
+    try:
+        app_label, _codename = codename.split(".")
+    except ValueError as e:
+        if not default_app_label:
+            raise PermissionsCodenameError(
+                f"Invalid dotted codename. {e} Got {codename}.")
+        app_label = default_app_label
+        _codename = codename
+    else:
+        if app_label not in [a.name for a in django_apps.get_app_configs()]:
+            raise PermissionsCodenameError(
+                f"Invalid app_label in codename. Expected format "
+                f"'<app_label>.<some_codename>'. Got {codename}."
+            )
+    return app_label, _codename
+
+
 def make_view_only_group(group=None):
     for permission in Permission.objects.filter(codename__startswith="change"):
         group.permissions.remove(permission)
@@ -239,24 +263,3 @@ def verify_codename_exists(codename):
     except ObjectDoesNotExist as e:
         raise CodenameDoesNotExist(f"{e} Got '{codename}'")
     return permission
-
-
-def verify_permission_codename(
-    permission_codename=None, default_app_label=None, **kwargs
-):
-    if not permission_codename:
-        raise PermissionsCodenameError(
-            f"Invalid codename. May not be None. Opts={kwargs}."
-        )
-    try:
-        app_label, codename = permission_codename.split(".")
-    except ValueError:
-        app_label = default_app_label
-        codename = permission_codename
-    else:
-        if app_label not in [a.name for a in django_apps.get_app_configs()]:
-            raise PermissionsCodenameError(
-                f"Invalid app_label in codename. Expected format "
-                f"'<app_label>.<some_codename>'. Got {permission_codename}."
-            )
-    return app_label, codename

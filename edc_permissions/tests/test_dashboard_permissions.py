@@ -13,7 +13,7 @@ from ..utils import (
     INVALID_APP_LABEL,
     PermissionsCreatorError,
     as_codenames_from_tuples,
-    verify_permission_codename,
+    verify_codename_exists,
 )
 from ..utils import create_edc_dashboard_permissions
 
@@ -43,7 +43,7 @@ class TestEdcDashboardPermissions(TestCase):
         self.assertGreater(Permission.objects.filter(
             content_type=ct).count(), 0)
         for perm in Permission.objects.filter(content_type=ct):
-            verify_permission_codename(perm.codename)
+            verify_codename_exists(codename=perm.codename)
 
     def test_adds_extra_dashboard_codenames(self):
         class GroupsUpdater(DefaultGroupsUpdater):
