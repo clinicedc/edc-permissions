@@ -116,8 +116,7 @@ def create_permissions_from_tuples(model, codename_tpls):
                 codename_tpl, model_cls._meta.app_label
             )
             try:
-                Permission.objects.get(
-                    codename=codename, content_type=content_type)
+                Permission.objects.get(codename=codename, content_type=content_type)
             except ObjectDoesNotExist:
                 Permission.objects.create(
                     name=name, codename=codename, content_type=content_type
@@ -129,9 +128,9 @@ def get_permissions_from_codenames(codenames):
     permissions = []
     for dotted_codename in codenames:
         app_label, codename = get_from_dotted_codename(dotted_codename)
-        permissions.append(Permission.objects.get(
-            codename=codename,
-            content_type__app_label=app_label))
+        permissions.append(
+            Permission.objects.get(codename=codename, content_type__app_label=app_label)
+        )
     return permissions
 
 
@@ -237,8 +236,7 @@ def remove_duplicates_in_groups(group_names):
                     "content_type__app_label", "codename"
                 )
             ]
-            duplicates = list(
-                set([x for x in codenames if codenames.count(x) > 1]))
+            duplicates = list(set([x for x in codenames if codenames.count(x) > 1]))
             if duplicates:
                 if i > 0:
                     sys.stdout.write(
@@ -289,8 +287,8 @@ def verify_codename_exists(codename):
     app_label, codename = get_from_dotted_codename(codename)
     try:
         permission = Permission.objects.get(
-            codename=codename,
-            content_type__app_label=app_label)
+            codename=codename, content_type__app_label=app_label
+        )
     except ObjectDoesNotExist as e:
         raise CodenameDoesNotExist(f"{e} Got '{app_label}.{codename}'")
     except MultipleObjectsReturned as e:

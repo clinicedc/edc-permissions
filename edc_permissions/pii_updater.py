@@ -32,7 +32,7 @@ class PiiUpdater:
             self._pii_historical_models = []
             for model in self.pii_models:
                 if "historical" not in model:
-                    model = '.historical'.join(model.split("."))
+                    model = ".historical".join(model.split("."))
                 self._pii_historical_models.append(model)
         return self._pii_historical_models
 
@@ -42,8 +42,7 @@ class PiiUpdater:
         pii_model_names = [m.split(".")[1] for m in self.pii_models]
         if view_only:
             permissions = Permission.objects.filter(
-                (Q(codename__startswith="view") | Q(
-                    codename__startswith="display")),
+                (Q(codename__startswith="view") | Q(codename__startswith="display")),
                 content_type__model__in=pii_model_names,
             )
         else:

@@ -29,6 +29,10 @@ def create_edc_navbar_permissions(extra_codename_tpls=None):
     for group in Group.objects.all():
         remove_permissions_by_codenames(
             group=group,
-            codenames=["edc_navbar.add_navbar", "edc_navbar.change_navbar",
-                       "edc_navbar.delete_navbar", "edc_navbar.view_navbar"],
+            codenames=[
+                "edc_navbar.add_navbar",
+                "edc_navbar.change_navbar",
+                "edc_navbar.delete_navbar",
+                "edc_navbar.view_navbar",
+            ],
         )

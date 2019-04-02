@@ -12,8 +12,7 @@ from .generic import (
 
 def add_edc_action_permissions(group, view_only=None, allow_delete=None):
 
-    permissions = Permission.objects.filter(
-        content_type__app_label="edc_action_item")
+    permissions = Permission.objects.filter(content_type__app_label="edc_action_item")
     for permission in permissions:
         group.permissions.add(permission)
 

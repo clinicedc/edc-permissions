@@ -18,7 +18,13 @@ from .utils import (
 
 
 class PermissionsUpdater:
-    def __init__(self, verbose=None, extra_pii_models=None, extra_updaters=None, extra_group_names=None):
+    def __init__(
+        self,
+        verbose=None,
+        extra_pii_models=None,
+        extra_updaters=None,
+        extra_group_names=None,
+    ):
 
         GroupsUpdater(extra_group_names=extra_group_names)
 
