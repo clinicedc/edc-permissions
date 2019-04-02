@@ -177,8 +177,7 @@ def remove_duplicates_in_groups(group_names):
                     "content_type__app_label", "codename"
                 )
             ]
-            duplicates = list(
-                set([x for x in codenames if codenames.count(x) > 1]))
+            duplicates = list(set([x for x in codenames if codenames.count(x) > 1]))
             if duplicates:
                 if i > 0:
                     sys.stdout.write(

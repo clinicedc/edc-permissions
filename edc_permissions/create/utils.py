@@ -16,8 +16,7 @@ def create_permissions_from_tuples(model, codename_tpls):
                 codename_tpl, model_cls._meta.app_label
             )
             try:
-                Permission.objects.get(
-                    codename=codename, content_type=content_type)
+                Permission.objects.get(codename=codename, content_type=content_type)
             except ObjectDoesNotExist:
                 Permission.objects.create(
                     name=name, codename=codename, content_type=content_type

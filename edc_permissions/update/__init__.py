@@ -1,4 +1,3 @@
-from .app_mixins import EdcDashboardMixin, EdcNavBarMixin
 from .group_updaters import (
     update_account_manager_group_permissions,
     update_administration_group_permissions,

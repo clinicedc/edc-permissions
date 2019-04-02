@@ -48,6 +48,7 @@ DEFAULT_SETTINGS = DefaultTestSettings(
     ],
     add_dashboard_middleware=True,
     add_lab_dashboard_middleware=True,
+    use_test_urls=True,
 ).settings
 
 
