@@ -1,10 +1,12 @@
 import sys
 
+from django.db import models
 from django.apps import apps as django_apps
 from django.contrib.auth.models import Group, Permission
 from pprint import pprint
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError,\
+    MultipleObjectsReturned
 
 from ..pii_updater import PiiUpdater
 
@@ -25,6 +27,11 @@ class PermissionsCreatorError(ValidationError):
 
 def add_permissions_to_group_by_model(group_name=None, model_cls=None):
     try:
+        model_cls = django_apps.get_model(model_cls)
+    except LookupError:
+        if not isinstance(model_cls, models.Model):
+            raise
+    try:
         group = Group.objects.get(name=group_name)
     except ObjectDoesNotExist as e:
         raise ObjectDoesNotExist(f"{e} Got {group_name}.")
@@ -40,19 +47,19 @@ def add_permissions_to_group_by_app_label(group=None, app_label=None):
 
 def add_permissions_to_group_by_codenames(group=None, codenames=None):
     if codenames:
-        for codename in codenames:
-            verify_codename_exists(codename)
-        for permission in Permission.objects.filter(codename__in=codenames):
+        permissions = get_permissions_from_codenames(codenames)
+        for permission in permissions:
             group.permissions.add(permission)
 
 
 def add_permissions_to_group_by_tuples(group=None, codename_tpls=None):
     codenames = []
     for codename_tpl in codename_tpls or []:
-        _, codename, _ = get_from_codename_tuple(codename_tpl)
-        verify_codename_exists(codename)
-        codenames.append(codename)
-    for permission in Permission.objects.filter(codename__in=codenames):
+        app_label, codename, _ = get_from_codename_tuple(codename_tpl)
+        verify_codename_exists(f"{app_label}.{codename}")
+        codenames.append(f"{app_label}.{codename}")
+    permissions = get_permissions_from_codenames(codenames)
+    for permission in permissions:
         group.permissions.add(permission)
 
 
@@ -103,32 +110,40 @@ def create_permissions_from_tuples(model, codename_tpls):
         model_cls = django_apps.get_model(model)
         content_type = ContentType.objects.get_for_model(model_cls)
         for codename_tpl in codename_tpls:
-            _, codename, name = get_from_codename_tuple(
+            app_label, codename, name = get_from_codename_tuple(
                 codename_tpl, model_cls._meta.app_label
             )
             try:
-                Permission.objects.get(codename=codename, content_type=content_type)
+                Permission.objects.get(
+                    codename=codename, content_type=content_type)
             except ObjectDoesNotExist:
                 Permission.objects.create(
                     name=name, codename=codename, content_type=content_type
                 )
+            verify_codename_exists(f"{app_label}.{codename}")
+
+
+def get_permissions_from_codenames(codenames):
+    permissions = []
+    for dotted_codename in codenames:
+        app_label, codename = get_from_dotted_codename(dotted_codename)
+        permissions.append(Permission.objects.get(
+            codename=codename,
+            content_type__app_label=app_label))
+    return permissions
 
 
 def get_from_codename_tuple(codename_tpl, app_label=None):
     value, name = codename_tpl
-    try:
-        _app_label, codename = value.split(".")
-    except ValueError:
-        _app_label, codename = app_label, value
-    else:
-        if app_label and _app_label != app_label:
-            raise PermissionsCreatorError(
-                f"app_label in permission codename does not match. "
-                f"Expected {app_label}. Got {_app_label}. "
-                f"See {codename_tpl}.",
-                code=INVALID_APP_LABEL,
-            )
-    return app_label, codename, name
+    _app_label, codename = value.split(".")
+    if app_label and _app_label != app_label:
+        raise PermissionsCreatorError(
+            f"app_label in permission codename does not match. "
+            f"Expected {app_label}. Got {_app_label}. "
+            f"See {codename_tpl}.",
+            code=INVALID_APP_LABEL,
+        )
+    return _app_label, codename, name
 
 
 def get_from_dotted_codename(codename=None, default_app_label=None, **kwargs):
@@ -220,7 +235,8 @@ def remove_duplicates_in_groups(group_names):
                     "content_type__app_label", "codename"
                 )
             ]
-            duplicates = list(set([x for x in codenames if codenames.count(x) > 1]))
+            duplicates = list(
+                set([x for x in codenames if codenames.count(x) > 1]))
             if duplicates:
                 if i > 0:
                     sys.stdout.write(
@@ -254,13 +270,14 @@ def remove_permissions_from_model_by_action(group=None, model=None, actions=None
     content_type = ContentType.objects.get_for_model(model_cls)
     for action in actions:
         for permission in Permission.objects.filter(
-            content_type=content_type, codename_startswith=action
+            content_type=content_type, codename__startswith=action
         ):
             group.permissions.remove(permission)
 
 
 def remove_permissions_by_codenames(group=None, codenames=None):
-    for permission in Permission.objects.filter(codename__in=codenames):
+    permissions = get_permissions_from_codenames(codenames)
+    for permission in permissions:
         group.permissions.remove(permission)
 
 
@@ -278,8 +295,13 @@ def show_permissions_for_group(group_name=None):
 
 
 def verify_codename_exists(codename):
+    app_label, codename = get_from_dotted_codename(codename)
     try:
-        permission = Permission.objects.get(codename=codename)
+        permission = Permission.objects.get(
+            codename=codename,
+            content_type__app_label=app_label)
     except ObjectDoesNotExist as e:
-        raise CodenameDoesNotExist(f"{e} Got '{codename}'")
+        raise CodenameDoesNotExist(f"{e} Got '{app_label}.{codename}'")
+    except MultipleObjectsReturned as e:
+        raise CodenameDoesNotExist(f"{e} Got '{app_label}.{codename}'")
     return permission

@@ -17,9 +17,9 @@ from .utils import (
 
 
 class PermissionsUpdater:
-    def __init__(self, verbose=None):
+    def __init__(self, verbose=None, extra_pii_models=None, extra_updaters=None, extra_group_names=None):
 
-        GroupsUpdater()
+        GroupsUpdater(extra_group_names=extra_group_names)
 
         create_edc_dashboard_permissions()
         create_edc_navbar_permissions()
@@ -34,4 +34,7 @@ class PermissionsUpdater:
         update_lab_group_permissions()
         update_lab_view_group_permissions()
         update_pharmacy_group_permissions()
-        update_pii_group_permissions()
+        update_pii_group_permissions(extra_pii_models=extra_pii_models)
+
+        for updater in extra_updaters or []:
+            updater()

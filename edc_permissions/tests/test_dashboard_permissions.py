@@ -27,19 +27,24 @@ class TestEdcDashboardPermissions(TestCase):
         create_edc_dashboard_permissions()
 
         codenames = as_codenames_from_tuples(LAB_DASHBOARD_CODENAMES)
-        self.assertGreater(Permission.objects.filter(codename__in=codenames).count(), 0)
+        self.assertGreater(Permission.objects.filter(
+            codename__in=[c.split(".")[1] for c in codenames]).count(), 0)
 
         codenames = as_codenames_from_tuples(REVIEW_DASHBOARD_CODENAMES)
-        self.assertGreater(Permission.objects.filter(codename__in=codenames).count(), 0)
+        self.assertGreater(Permission.objects.filter(
+            codename__in=[c.split(".")[1] for c in codenames]).count(), 0)
 
         codenames = as_codenames_from_tuples(CLINIC_DASHBOARD_CODENAMES)
-        self.assertGreater(Permission.objects.filter(codename__in=codenames).count(), 0)
+        self.assertGreater(Permission.objects.filter(
+            codename__in=[c.split(".")[1] for c in codenames]).count(), 0)
 
         model_cls = django_apps.get_model("edc_dashboard.dashboard")
         ct = ContentType.objects.get_for_model(model_cls)
-        self.assertGreater(Permission.objects.filter(content_type=ct).count(), 0)
+        self.assertGreater(Permission.objects.filter(
+            content_type=ct).count(), 0)
         for perm in Permission.objects.filter(content_type=ct):
-            verify_codename_exists(codename=perm.codename)
+            codename = f"{perm.content_type.app_label}.{perm.codename}"
+            verify_codename_exists(codename=codename)
 
     def test_adds_extra_dashboard_codenames(self):
         class GroupsUpdater(DefaultGroupsUpdater):
@@ -47,14 +52,14 @@ class TestEdcDashboardPermissions(TestCase):
 
         GroupsUpdater()
 
-        extra_codenames = [("view_erik", "View Erik")]
+        extra_codenames = [("edc_dashboard.view_erik", "View Erik")]
 
-        create_edc_dashboard_permissions(extra_codenames=extra_codenames)
+        create_edc_dashboard_permissions(extra_codename_tpls=extra_codenames)
 
         codenames = as_codenames_from_tuples(extra_codenames)
-        self.assertEqual(Permission.objects.filter(codename__in=codenames).count(), 1)
+        self.assertEqual(Permission.objects.filter(
+            codename__in=[c.split(".")[1] for c in codenames]).count(), 1)
 
-    @tag("1")
     def test_detects_bad_app_label(self):
         class GroupsUpdater(DefaultGroupsUpdater):
             extra_group_names = ["ERIK"]
@@ -62,8 +67,10 @@ class TestEdcDashboardPermissions(TestCase):
         GroupsUpdater()
 
         extra_codenames = [
-            ("blah.view_subject_review_listboard", "Can view Subject Review Listboard")
+            ("blah.view_subject_review_listboard",
+             "Can view Subject Review Listboard")
         ]
         with self.assertRaises(PermissionsCreatorError) as cm:
-            create_edc_dashboard_permissions(extra_codenames=extra_codenames)
+            create_edc_dashboard_permissions(
+                extra_codename_tpls=extra_codenames)
         self.assertEqual(cm.exception.code, INVALID_APP_LABEL)

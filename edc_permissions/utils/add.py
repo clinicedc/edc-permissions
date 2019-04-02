@@ -12,7 +12,8 @@ from .generic import (
 
 def add_edc_action_permissions(group, view_only=None, allow_delete=None):
 
-    permissions = Permission.objects.filter(content_type__app_label="edc_action_item")
+    permissions = Permission.objects.filter(
+        content_type__app_label="edc_action_item")
     for permission in permissions:
         group.permissions.add(permission)
 
@@ -44,14 +45,15 @@ def add_edc_offstudy_permissions(group):
 
 def add_review_listboard_permissions(group, codenames=None):
     codenames = codenames or [
-        "view_lab_requisition_listboard",
-        "view_subject_review_listboard",
+        "edc_dashboard.view_lab_requisition_listboard",
+        "edc_dashboard.view_subject_review_listboard",
     ]
 
+    permissions = []
     for codename in codenames:
-        verify_codename_exists(codename)
+        permissions.append(verify_codename_exists(codename))
 
-    for permission in Permission.objects.filter(codename__in=codenames):
+    for permission in permissions:
         group.permissions.add(permission)
 
 

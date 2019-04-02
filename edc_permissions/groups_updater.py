@@ -24,17 +24,19 @@ class GroupsUpdater:
 
     default_group_names = DEFAULT_GROUP_NAMES
 
-    extra_group_names = None
-
-    def __init__(self, verbose=None, **kwargs):
+    def __init__(self, verbose=None, extra_group_names=None, **kwargs):
         self._group_names = None
+        self.extra_group_names = extra_group_names
         self.verbose = verbose
         self.create_or_update_groups()
-        self.ensure_users_in_group(ADMINISTRATION, users_by_groups=[CLINIC, LAB])
+        self.ensure_users_in_group(
+            ADMINISTRATION, users_by_groups=[CLINIC, LAB])
         self.ensure_users_in_group(PII, users_by_groups=[CLINIC])
         self.ensure_users_in_group(PII_VIEW, users_by_groups=[LAB, PHARMACY])
-        self.ensure_users_not_in_group(PII, users_by_groups=[AUDITOR, LAB, PHARMACY])
-        self.ensure_users_not_in_group(PII, users_by_groups=[AUDITOR, LAB, PHARMACY])
+        self.ensure_users_not_in_group(
+            PII, users_by_groups=[AUDITOR, LAB, PHARMACY])
+        self.ensure_users_not_in_group(
+            PII, users_by_groups=[AUDITOR, LAB, PHARMACY])
         self.ensure_users_not_in_group(PII_VIEW, users_by_groups=[AUDITOR])
         remove_duplicates_in_groups(self.group_names)
 
