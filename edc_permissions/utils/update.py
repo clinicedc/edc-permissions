@@ -97,8 +97,7 @@ def update_data_manager_group_permissions(extra_codenames=None):
     group_name = DATA_MANAGER
     group = Group.objects.get(name=group_name)
     group.permissions.clear()
-    add_permissions_to_group_by_app_label(
-        group=group, app_label="edc_metadata")
+    add_permissions_to_group_by_app_label(group=group, app_label="edc_metadata")
     add_edc_navbar_permissions(group=group)
     add_permissions_to_group_by_codenames(group, extra_codenames)
     remove_historical_group_permissions(group=group)

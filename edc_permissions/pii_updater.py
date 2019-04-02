@@ -13,12 +13,13 @@ class PiiUpdater:
         "edc_registration.registeredsubject",
     ]
 
-    def __init__(self, extra_pii_models=None, **kwargs):
+    def __init__(self, extra_pii_models=None, no_update=None, **kwargs):
         super().__init__(**kwargs)
         self._pii_models = []
         self.extra_pii_models = extra_pii_models
-        self.update_pii_group_permissions()
-        self.update_pii_view_group_permissions()
+        if not no_update:
+            self.update_pii_group_permissions()
+            self.update_pii_view_group_permissions()
 
     @property
     def pii_models(self):
@@ -49,8 +50,7 @@ class PiiUpdater:
         pii_model_names = [m.split(".")[1] for m in self.pii_models]
         if view_only:
             permissions = Permission.objects.filter(
-                (Q(codename__startswith="view") | Q(
-                    codename__startswith="display")),
+                (Q(codename__startswith="view") | Q(codename__startswith="display")),
                 content_type__model__in=pii_model_names,
             )
         else:

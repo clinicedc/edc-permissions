@@ -6,6 +6,8 @@ from pprint import pprint
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
+from ..pii_updater import PiiUpdater
+
 INVALID_APP_LABEL = "invalid_app_label"
 
 
@@ -105,8 +107,7 @@ def create_permissions_from_tuples(model, codename_tpls):
                 codename_tpl, model_cls._meta.app_label
             )
             try:
-                Permission.objects.get(
-                    codename=codename, content_type=content_type)
+                Permission.objects.get(codename=codename, content_type=content_type)
             except ObjectDoesNotExist:
                 Permission.objects.create(
                     name=name, codename=codename, content_type=content_type
@@ -130,9 +131,7 @@ def get_from_codename_tuple(codename_tpl, app_label=None):
     return app_label, codename, name
 
 
-def get_from_dotted_codename(
-    codename=None, default_app_label=None, **kwargs
-):
+def get_from_dotted_codename(codename=None, default_app_label=None, **kwargs):
     if not codename:
         raise PermissionsCodenameError(
             f"Invalid codename. May not be None. Opts={kwargs}."
@@ -142,7 +141,8 @@ def get_from_dotted_codename(
     except ValueError as e:
         if not default_app_label:
             raise PermissionsCodenameError(
-                f"Invalid dotted codename. {e} Got {codename}.")
+                f"Invalid dotted codename. {e} Got {codename}."
+            )
         app_label = default_app_label
         _codename = codename
     else:
@@ -220,8 +220,7 @@ def remove_duplicates_in_groups(group_names):
                     "content_type__app_label", "codename"
                 )
             ]
-            duplicates = list(
-                set([x for x in codenames if codenames.count(x) > 1]))
+            duplicates = list(set([x for x in codenames if codenames.count(x) > 1]))
             if duplicates:
                 if i > 0:
                     sys.stdout.write(
@@ -239,12 +238,33 @@ def remove_duplicates_in_groups(group_names):
                     group.permissions.add(permission)
 
 
-def remove_permissions_from_group_by_codenames(group=None, codenames=None):
+def get_pii_models(extra_pii_models=None):
+    pii = PiiUpdater(extra_pii_models=extra_pii_models, no_update=True)
+    return pii.pii_models
+
+
+def remove_pii_permissions_from_group(group, extra_pii_models=None):
+    pii = PiiUpdater(extra_pii_models=extra_pii_models, no_update=True)
+    for model in pii.pii_models:
+        remove_permissions_by_model(group, model)
+
+
+def remove_permissions_from_model_by_action(group=None, model=None, actions=None):
+    model_cls = django_apps.get_model(model)
+    content_type = ContentType.objects.get_for_model(model_cls)
+    for action in actions:
+        for permission in Permission.objects.filter(
+            content_type=content_type, codename_startswith=action
+        ):
+            group.permissions.remove(permission)
+
+
+def remove_permissions_by_codenames(group=None, codenames=None):
     for permission in Permission.objects.filter(codename__in=codenames):
         group.permissions.remove(permission)
 
 
-def remove_permissions_from_group_by_model(group=None, model=None):
+def remove_permissions_by_model(group=None, model=None):
     model_cls = django_apps.get_model(model)
     content_type = ContentType.objects.get_for_model(model_cls)
     for permission in Permission.objects.filter(content_type=content_type):
