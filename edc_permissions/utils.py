@@ -1,78 +1,170 @@
-import django
 import sys
 
 from django.apps import apps as django_apps
-from django.contrib.auth.models import Permission, Group
-from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.models import Group, Permission
 from pprint import pprint
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+
+INVALID_APP_LABEL = "invalid_app_label"
 
 
-class HistoricalPermissionUpdater:
-    def __init__(self):
-        self.created_codenames = []
-        self.updated_codenames = []
-        self.actions = ["add", "change", "delete", "view"]
+class CodenameDoesNotExist(Exception):
+    pass
 
-    def update_or_create(self, model=None, dry_run=None, clear_existing=None):
+
+class PermissionsCodenameError(Exception):
+    pass
+
+
+class PermissionsCreatorError(ValidationError):
+    pass
+
+
+def add_permissions_to_group_by_model(group_name=None, model_cls=None):
+    try:
+        group = Group.objects.get(name=group_name)
+    except ObjectDoesNotExist as e:
+        raise ObjectDoesNotExist(f"{e} Got {group_name}.")
+    ct = ContentType.objects.get_for_model(model_cls)
+    for permission in Permission.objects.filter(content_type=ct):
+        group.permissions.add(permission)
+
+
+def add_permissions_to_group_by_app_label(group=None, app_label=None):
+    for permission in Permission.objects.filter(content_type__app_label=app_label):
+        group.permissions.add(permission)
+
+
+def add_permissions_to_group_by_codenames(group=None, codenames=None):
+    if codenames:
+        for codename in codenames:
+            verify_codename_exists(codename)
+        for permission in Permission.objects.filter(codename__in=codenames):
+            group.permissions.add(permission)
+
+
+def add_permissions_to_group_by_tuples(group=None, codename_tpls=None):
+    codenames = []
+    for codename_tpl in codename_tpls or []:
+        _, codename, _ = get_from_codename_tuple(codename_tpl)
+        verify_codename_exists(codename)
+        codenames.append(codename)
+    for permission in Permission.objects.filter(codename__in=codenames):
+        group.permissions.add(permission)
+
+
+def as_codenames_from_dict(dct):
+    codenames = []
+    for codename_tpls in dct.values():
+        codenames.extend(as_codenames_from_tuples(codename_tpls))
+    return codenames
+
+
+def as_codenames_from_tuples(codename_tpls):
+    codenames = []
+    for codename_tpl in codename_tpls:
         try:
-            manager = getattr(model, model._meta.simple_history_manager_attribute)
-        except AttributeError:
-            pass
-        else:
-            historical_model = manager.model
-            app_label, model_name = historical_model._meta.label_lower.split(".")
-            content_type = ContentType.objects.get(
-                app_label=app_label, model=model_name
-            )
-            if not dry_run and clear_existing:
-                Permission.objects.filter(content_type=content_type).delete()
-            for action in self.actions:
-                name = f"Can {action} {historical_model._meta.verbose_name}"
-                codename = f"{action}_{model_name}"
-                try:
-                    perm = Permission.objects.get(
-                        content_type=content_type, codename=codename
-                    )
-                except ObjectDoesNotExist:
-                    if not dry_run:
-                        Permission.objects.create(
-                            content_type=content_type, name=name, codename=codename
-                        )
-                    self.created_codenames.append(codename)
-                else:
-                    if perm.name != name:
-                        if not dry_run:
-                            perm.name = name
-                            perm.save()
-                        self.updated_names.append(name)
+            _, codename = codename_tpl[0]
+        except ValueError:
+            codename = codename_tpl[0]
+        codenames.append(codename)
+    return codenames
 
-    def reset_codenames(self, dry_run=None, clear_existing=None):
-        """Ensures all historical model codenames exist in Django's Permission
-        model.
-        """
-        self.created_codenames = []
-        self.updated_names = []
-        actions = ["add", "change", "delete", "view"]
-        if django.VERSION >= (2, 1):
-            actions.append("view")
-        for app in django_apps.get_app_configs():
-            for model in app.get_models():
-                self.update_or_create(
-                    model, dry_run=dry_run, clear_existing=clear_existing
-                )
-        if dry_run:
-            print("This is a dry-run. No modifications were made.")
-        if self.created_codenames:
-            print("The following permission.codenames were be added:")
-            pprint(self.created_codenames)
-        else:
-            print("No permission.codenames were added.")
-        if self.updated_names:
-            print("The following permission.names were updated:")
-            pprint(self.updated_names)
-        else:
-            print("No permission.names were updated.")
+
+def compare_codenames_for_group(group_name=None, expected=None):
+    group = Group.objects.get(name=group_name)
+    codenames = [p.codename for p in group.permissions.all()]
+
+    new_expected = []
+    for c in expected:
+        try:
+            c = c.split(".")[1]
+        except IndexError:
+            pass
+        new_expected.append(c)
+
+    compared = [c for c in new_expected if c not in codenames]
+    if compared:
+        print(group.name, "missing from codenames")
+        pprint(compared)
+    compared = [c for c in codenames if c not in new_expected]
+    if compared:
+        print(group.name, "extra codenames")
+        pprint(compared)
+
+
+def get_from_codename_tuple(codename_tpl, app_label=None):
+    value, name = codename_tpl
+    try:
+        _app_label, codename = value.split(".")
+    except ValueError:
+        _app_label, codename = app_label, value
+    else:
+        if app_label and _app_label != app_label:
+            raise PermissionsCreatorError(
+                f"app_label in permission codename does not match. "
+                f"Expected {app_label}. Got {_app_label}. "
+                f"See {codename_tpl}.",
+                code=INVALID_APP_LABEL,
+            )
+    return app_label, codename, name
+
+
+def make_view_only_group(group=None):
+    for permission in Permission.objects.filter(codename__startswith="change"):
+        group.permissions.remove(permission)
+    for permission in Permission.objects.filter(codename__startswith="add"):
+        group.permissions.remove(permission)
+    for permission in Permission.objects.filter(codename__startswith="delete"):
+        group.permissions.remove(permission)
+
+
+def make_view_only_app_label(group=None, app_label=None):
+    for permission in Permission.objects.filter(
+        codename__startswith="change", content_type__app_label=app_label
+    ):
+        group.permissions.remove(permission)
+    for permission in Permission.objects.filter(
+        codename__startswith="add", content_type__app_label=app_label
+    ):
+        group.permissions.remove(permission)
+    for permission in Permission.objects.filter(
+        codename__startswith="delete", content_type__app_label=app_label
+    ):
+        group.permissions.remove(permission)
+
+
+def make_view_only_model(group=None, model=None):
+    model_cls = django_apps.get_model(model)
+    content_type = ContentType.objects.get_for_model(model_cls)
+    for permission in Permission.objects.filter(
+        codename__startswith="change", content_type=content_type
+    ):
+        group.permissions.remove(permission)
+    for permission in Permission.objects.filter(
+        codename__startswith="add", content_type=content_type
+    ):
+        group.permissions.remove(permission)
+    for permission in Permission.objects.filter(
+        codename__startswith="delete", content_type=content_type
+    ):
+        group.permissions.remove(permission)
+
+
+def remove_historical_group_permissions(group=None, allowed_permissions=None):
+    """Removes group permissions for historical models
+    except those whose prefix is in `allowed_historical_permissions`.
+
+    Default removes all except `view`.
+    """
+    allowed_permissions = allowed_permissions or ["view"]
+
+    for action in allowed_permissions:
+        for permission in group.permissions.filter(
+            codename__contains="historical"
+        ).exclude(codename__startswith=action):
+            group.permissions.remove(permission)
 
 
 def remove_duplicates_in_groups(group_names):
@@ -85,7 +177,8 @@ def remove_duplicates_in_groups(group_names):
                     "content_type__app_label", "codename"
                 )
             ]
-            duplicates = list(set([x for x in codenames if codenames.count(x) > 1]))
+            duplicates = list(
+                set([x for x in codenames if codenames.count(x) > 1]))
             if duplicates:
                 if i > 0:
                     sys.stdout.write(
@@ -101,3 +194,43 @@ def remove_duplicates_in_groups(group_names):
                     ):
                         group.permissions.remove(permission)
                     group.permissions.add(permission)
+
+
+def remove_permissions_from_group_by_codenames(group=None, codenames=None):
+    for permission in Permission.objects.filter(codename__in=codenames):
+        group.permissions.remove(permission)
+
+
+def show_permissions_for_group(group_name=None):
+    group = Group.objects.get(name=group_name)
+    print(group.name)
+    pprint([p for p in group.permissions.all()])
+
+
+def verify_codename_exists(codename):
+    try:
+        permission = Permission.objects.get(codename=codename)
+    except ObjectDoesNotExist as e:
+        raise CodenameDoesNotExist(f"{e} Got '{codename}'")
+    return permission
+
+
+def verify_permission_codename(
+    permission_codename=None, default_app_label=None, **kwargs
+):
+    if not permission_codename:
+        raise PermissionsCodenameError(
+            f"Invalid codename. May not be None. Opts={kwargs}."
+        )
+    try:
+        app_label, codename = permission_codename.split(".")
+    except ValueError:
+        app_label = default_app_label
+        codename = permission_codename
+    else:
+        if app_label not in [a.name for a in django_apps.get_app_configs()]:
+            raise PermissionsCodenameError(
+                f"Invalid app_label in codename. Expected format "
+                f"'<app_label>.<some_codename>'. Got {permission_codename}."
+            )
+    return app_label, codename

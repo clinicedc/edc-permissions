@@ -1,4 +1,8 @@
+from django.conf import settings
+
+from .dashboard_codenames import DASHBOARD_CODENAMES
 from .default_codenames import DEFAULT_CODENAMES
+from .navbar_codenames import NAVBAR_CODENAMES
 from .group_names import (
     ACCOUNT_MANAGER,
     ADMINISTRATION,
@@ -7,30 +11,11 @@ from .group_names import (
     AUDITOR,
     CLINIC,
     LAB,
+    LAB_VIEW,
     PHARMACY,
     PII,
     EXPORT,
     DATA_MANAGER,
+    REVIEW,
+    DEFAULT_GROUP_NAMES,
 )
-from .lab_dashboard_codenames import LAB_DASHBOARD_CODENAMES
-
-DEFAULT_AUDITOR_APP_LABELS = ["edc_lab", "edc_offstudy"]
-
-DEFAULT_GROUP_NAMES = [
-    ACCOUNT_MANAGER,
-    ADMINISTRATION,
-    AUDITOR,
-    CLINIC,
-    DATA_MANAGER,
-    EVERYONE,
-    EXPORT,
-    LAB,
-    PHARMACY,
-    PII,
-    PII_VIEW,
-]
-
-DEFAULT_PII_MODELS = [
-    "edc_locator.subjectlocator",
-    "edc_registration.registeredsubject",
-]

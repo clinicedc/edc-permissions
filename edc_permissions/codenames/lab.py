@@ -16,8 +16,6 @@ lab = [
     "edc_dashboard.view_lab_receive_listboard",
     "edc_dashboard.view_lab_requisition_listboard",
     "edc_dashboard.view_lab_result_listboard",
-    "edc_dashboard.view_screening_listboard",
-    "edc_dashboard.view_subject_listboard",
     "edc_lab.add_aliquot",
     "edc_lab.add_box",
     "edc_lab.add_boxitem",
@@ -82,5 +80,4 @@ lab = [
     "edc_navbar.nav_lab_receive",
     "edc_navbar.nav_lab_requisition",
     "edc_navbar.nav_lab_section",
-    "edc_navbar.nav_subject_section",
 ]

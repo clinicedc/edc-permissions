@@ -6,6 +6,7 @@ from .data_manager import data_manager
 from .everyone import everyone
 from .export import export
 from .lab import lab
+from .lab_view import lab_view
 from .pharmacy import pharmacy
 from .pii import pii
 from .pii_view import pii_view
