@@ -13,6 +13,7 @@ from .utils import (
     update_lab_view_group_permissions,
     update_pharmacy_group_permissions,
     update_pii_group_permissions,
+    update_pii_view_group_permissions,
 )
 
 
@@ -35,6 +36,7 @@ class PermissionsUpdater:
         update_lab_view_group_permissions()
         update_pharmacy_group_permissions()
         update_pii_group_permissions(extra_pii_models=extra_pii_models)
+        update_pii_view_group_permissions(extra_pii_models=extra_pii_models)
 
         for updater in extra_updaters or []:
             updater()

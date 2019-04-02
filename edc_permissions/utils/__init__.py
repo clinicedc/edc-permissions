@@ -17,7 +17,6 @@ from .generic import (
     as_codenames_from_tuples,
     create_permissions_from_tuples,
     compare_codenames_for_group,
-    get_pii_models,
     get_from_codename_tuple,
     get_from_dotted_codename,
     make_view_only_group,
@@ -28,13 +27,18 @@ from .generic import (
     remove_permissions_by_codenames,
     remove_permissions_by_model,
     remove_permissions_from_model_by_action,
-    remove_pii_permissions_from_group,
     show_permissions_for_group,
     verify_codename_exists,
     INVALID_APP_LABEL,
     CodenameDoesNotExist,
     PermissionsCodenameError,
     PermissionsCreatorError,
+)
+from .pii import (
+    get_pii_models,
+    remove_pii_permissions_from_group,
+    update_pii_group_permissions,
+    update_pii_view_group_permissions,
 )
 from .update import (
     update_account_manager_group_permissions,
@@ -47,5 +51,4 @@ from .update import (
     update_lab_group_permissions,
     update_lab_view_group_permissions,
     update_pharmacy_group_permissions,
-    update_pii_group_permissions,
 )

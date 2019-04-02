@@ -3,12 +3,14 @@ import sys
 from django.db import models
 from django.apps import apps as django_apps
 from django.contrib.auth.models import Group, Permission
-from pprint import pprint
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist, ValidationError,\
-    MultipleObjectsReturned
+from django.core.exceptions import (
+    MultipleObjectsReturned,
+    ObjectDoesNotExist,
+    ValidationError,
+)
+from pprint import pprint
 
-from ..pii_updater import PiiUpdater
 
 INVALID_APP_LABEL = "invalid_app_label"
 
@@ -252,17 +254,6 @@ def remove_duplicates_in_groups(group_names):
                     ):
                         group.permissions.remove(permission)
                     group.permissions.add(permission)
-
-
-def get_pii_models(extra_pii_models=None):
-    pii = PiiUpdater(extra_pii_models=extra_pii_models, no_update=True)
-    return pii.pii_models
-
-
-def remove_pii_permissions_from_group(group, extra_pii_models=None):
-    pii = PiiUpdater(extra_pii_models=extra_pii_models, no_update=True)
-    for model in pii.pii_models:
-        remove_permissions_by_model(group, model)
 
 
 def remove_permissions_from_model_by_action(group=None, model=None, actions=None):

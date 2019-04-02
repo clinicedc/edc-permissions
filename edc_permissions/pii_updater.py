@@ -1,8 +1,6 @@
 from django.conf import settings
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import Permission
 from django.db.models import Q
-
-from .constants import PII, PII_VIEW
 
 
 class PiiUpdater:
@@ -13,36 +11,30 @@ class PiiUpdater:
         "edc_registration.registeredsubject",
     ]
 
-    def __init__(self, extra_pii_models=None, no_update=None, **kwargs):
-        super().__init__(**kwargs)
-        self._pii_models = []
-        self.extra_pii_models = extra_pii_models
-        if not no_update:
-            self.update_pii_group_permissions()
-            self.update_pii_view_group_permissions()
+    def __init__(self, extra_pii_models=None, **kwargs):
+        self._pii_models = None
+        self._pii_historical_models = None
+        self.extra_pii_models = extra_pii_models or []
 
     @property
     def pii_models(self):
         if not self._pii_models:
             self._pii_models = [model for model in self.default_pii_models]
-            if self.extra_pii_models:
-                self._pii_models.extend(self.extra_pii_models or [])
-            self._pii_models.append(settings.SUBJECT_CONSENT_MODEL)
+            self._pii_models.extend(self.extra_pii_models)
+            self._pii_models.extend(list(self.pii_historical_models))
             self._pii_models = list(set(self._pii_models))
             self._pii_models.sort()
         return self._pii_models
 
-    def update_pii_group_permissions(self):
-        group_name = PII
-        group = Group.objects.get(name=group_name)
-        group.permissions.clear()
-        self.add_pii_permissions(group)
-
-    def update_pii_view_group_permissions(self):
-        group_name = PII_VIEW
-        group = Group.objects.get(name=group_name)
-        group.permissions.clear()
-        self.add_pii_permissions(group, view_only=True)
+    @property
+    def pii_historical_models(self):
+        if not self._pii_historical_models:
+            self._pii_historical_models = []
+            for model in self.pii_models:
+                if "historical" not in model:
+                    model = '.historical'.join(model.split("."))
+                self._pii_historical_models.append(model)
+        return self._pii_historical_models
 
     def add_pii_permissions(self, group, view_only=None):
         """Adds PII model permissions.
@@ -50,7 +42,8 @@ class PiiUpdater:
         pii_model_names = [m.split(".")[1] for m in self.pii_models]
         if view_only:
             permissions = Permission.objects.filter(
-                (Q(codename__startswith="view") | Q(codename__startswith="display")),
+                (Q(codename__startswith="view") | Q(
+                    codename__startswith="display")),
                 content_type__model__in=pii_model_names,
             )
         else:
