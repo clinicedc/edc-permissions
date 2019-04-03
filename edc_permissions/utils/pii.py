@@ -1,7 +1,8 @@
+from django.contrib.auth.models import Group
+
+from ..constants import PII, PII_VIEW
 from ..pii_updater import PiiUpdater
 from .generic import remove_permissions_by_model, remove_historical_group_permissions
-from ..constants import PII, PII_VIEW
-from django.contrib.auth.models import Group
 
 
 def get_pii_models(extra_pii_models=None):
