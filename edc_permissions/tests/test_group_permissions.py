@@ -1,23 +1,10 @@
 from django.test import TestCase, tag
+from django.contrib.auth.models import Group
 
-from ..constants import DEFAULT_CODENAMES
-from ..permissions_inspector import PermissionsInspector
-from ..permissions_updater import PermissionsUpdater
+from ..groups_updater import GroupsUpdater
 
 
 class TestGroupPermissions(TestCase):
-
-    codenames = DEFAULT_CODENAMES
-
-    permissions_updater_cls = PermissionsUpdater
-
-    def setUp(self):
-        self.updater = self.permissions_updater_cls(verbose=False)
-        self.inspector = PermissionsInspector(
-            default_codenames=self.codenames, verbose=True
-        )
-
-    @tag("compare_codenames")
-    def test_codenames(self):
-        for group in self.codenames:
-            self.inspector.compare_codenames(group_name=group)
+    def test_groups(self):
+        grp = GroupsUpdater()
+        self.assertGreater(Group.objects.filter(name__in=grp.group_names).count(), 0)
