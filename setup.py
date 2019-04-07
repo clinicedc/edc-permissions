@@ -31,9 +31,7 @@ setup(
     long_description=README,
     zip_safe=False,
     keywords='django edc groups permissions',
-    install_requires=[
-        'edc-base', 'edc_navbar'
-    ],
+    install_requires=['edc_navbar'],
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
