@@ -13,3 +13,4 @@ edc-navbar
 edc-offstudy
 edc-pharmacy
 edc-registration
+edc-test-utils
