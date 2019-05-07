@@ -33,9 +33,9 @@ class PermissionsUpdater:
         update_account_manager_group_permissions()
         sys.stdout.write("  * administration\n")
         update_administration_group_permissions()
-        sys.stdout.write("  * account manager\n")
+        sys.stdout.write("  * auditor manager\n")
         update_auditor_group_permissions()
-        sys.stdout.write("  * auditor\n")
+        sys.stdout.write("  * clinic\n")
         update_clinic_group_permissions()
         sys.stdout.write("  * data_manager\n")
         update_data_manager_group_permissions()
@@ -56,4 +56,5 @@ class PermissionsUpdater:
 
         sys.stdout.write("  * extras ...\n")
         for updater in extra_updaters or []:
-            updater()
+            group_name = updater()
+            sys.stdout.write(f"    - {group_name.lower()}\n")
