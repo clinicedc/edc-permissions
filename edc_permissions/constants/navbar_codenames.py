@@ -2,16 +2,20 @@ from .group_names import (
     ADMINISTRATION,
     AUDITOR,
     CLINIC,
+    DATA_MANAGER,
+    DATA_QUERY,
+    EVERYONE,
     LAB,
     LAB_VIEW,
     PHARMACY,
-    EVERYONE,
 )
 
 NAVBAR_CODENAMES = {
     ADMINISTRATION: ["edc_navbar.nav_administration"],
     AUDITOR: ["edc_navbar.nav_lab_section", "edc_navbar.nav_lab_requisition"],
     CLINIC: ["edc_navbar.nav_lab_section", "edc_navbar.nav_lab_requisition"],
+    DATA_MANAGER: ["edc_navbar.nav_data_manager_section"],
+    DATA_QUERY: ["edc_navbar.nav_data_manager_section"],
     EVERYONE: [
         "edc_navbar.nav_administration",
         "edc_navbar.nav_home",
@@ -43,5 +47,6 @@ NAVBAR_CODENAMES = {
 for group_name, codenames in NAVBAR_CODENAMES.items():
     updated_codenames = []
     for codename in codenames:
-        updated_codenames.append((codename, f"Can access {codename.split('.')[1]}"))
+        updated_codenames.append(
+            (codename, f"Can access {codename.split('.')[1]}"))
     NAVBAR_CODENAMES[group_name] = updated_codenames

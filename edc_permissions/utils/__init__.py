@@ -46,6 +46,7 @@ from .update import (
     update_auditor_group_permissions,
     update_clinic_group_permissions,
     update_data_manager_group_permissions,
+    update_data_query_group_permissions,
     update_everyone_group_permissions,
     update_export_group_permissions,
     update_lab_group_permissions,

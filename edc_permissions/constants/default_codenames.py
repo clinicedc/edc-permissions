@@ -4,6 +4,7 @@ from ..codenames import (
     auditor,
     clinic,
     data_manager,
+    data_query,
     everyone,
     export,
     lab,
@@ -25,6 +26,7 @@ from .group_names import (
     PII,
     EXPORT,
     DATA_MANAGER,
+    DATA_QUERY,
 )
 
 DEFAULT_CODENAMES = {
@@ -33,6 +35,7 @@ DEFAULT_CODENAMES = {
     AUDITOR: auditor,
     CLINIC: clinic,
     DATA_MANAGER: data_manager,
+    DATA_QUERY: data_query,
     EVERYONE: everyone,
     EXPORT: export,
     LAB: lab,
