@@ -3,6 +3,7 @@ from .administration import administration
 from .auditor import auditor
 from .clinic import clinic
 from .data_manager import data_manager
+from .data_query import data_query
 from .everyone import everyone
 from .export import export
 from .lab import lab

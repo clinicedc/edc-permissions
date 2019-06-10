@@ -16,6 +16,7 @@ from .group_names import (
     PII,
     EXPORT,
     DATA_MANAGER,
+    DATA_QUERY,
     REVIEW,
     DEFAULT_GROUP_NAMES,
 )
