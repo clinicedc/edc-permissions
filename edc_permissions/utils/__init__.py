@@ -52,4 +52,5 @@ from .update import (
     update_lab_group_permissions,
     update_lab_view_group_permissions,
     update_pharmacy_group_permissions,
+    update_site_data_manager_group_permissions,
 )

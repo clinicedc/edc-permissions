@@ -19,4 +19,5 @@ from .group_names import (
     DATA_QUERY,
     REVIEW,
     DEFAULT_GROUP_NAMES,
+    SITE_DATA_MANAGER,
 )

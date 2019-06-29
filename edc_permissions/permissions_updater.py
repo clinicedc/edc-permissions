@@ -17,6 +17,7 @@ from .utils import (
     update_pharmacy_group_permissions,
     update_pii_group_permissions,
     update_pii_view_group_permissions,
+    update_site_data_manager_group_permissions,
 )
 
 
@@ -40,6 +41,8 @@ class PermissionsUpdater:
         update_clinic_group_permissions()
         sys.stdout.write("  * data_manager\n")
         update_data_manager_group_permissions()
+        sys.stdout.write("  * site_data_manager\n")
+        update_site_data_manager_group_permissions()
         sys.stdout.write("  * data_query\n")
         update_data_query_group_permissions()
         sys.stdout.write("  * everyone\n")
