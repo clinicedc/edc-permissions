@@ -12,6 +12,7 @@ from ..codenames import (
     pharmacy,
     pii,
     pii_view,
+    site_data_manager,
 )
 from .group_names import (
     ACCOUNT_MANAGER,
@@ -27,6 +28,7 @@ from .group_names import (
     EXPORT,
     DATA_MANAGER,
     DATA_QUERY,
+    SITE_DATA_MANAGER,
 )
 
 DEFAULT_CODENAMES = {
@@ -35,6 +37,7 @@ DEFAULT_CODENAMES = {
     AUDITOR: auditor,
     CLINIC: clinic,
     DATA_MANAGER: data_manager,
+    SITE_DATA_MANAGER: site_data_manager,
     DATA_QUERY: data_query,
     EVERYONE: everyone,
     EXPORT: export,

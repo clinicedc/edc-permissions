@@ -47,6 +47,5 @@ NAVBAR_CODENAMES = {
 for group_name, codenames in NAVBAR_CODENAMES.items():
     updated_codenames = []
     for codename in codenames:
-        updated_codenames.append(
-            (codename, f"Can access {codename.split('.')[1]}"))
+        updated_codenames.append((codename, f"Can access {codename.split('.')[1]}"))
     NAVBAR_CODENAMES[group_name] = updated_codenames

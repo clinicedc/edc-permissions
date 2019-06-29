@@ -13,6 +13,7 @@ from ..constants import (
     LAB,
     LAB_VIEW,
     PHARMACY,
+    SITE_DATA_MANAGER,
 )
 from ..utils import (
     make_view_only_group,
@@ -103,21 +104,38 @@ def update_data_manager_group_permissions(extra_codenames=None):
 
     add_edc_navbar_permissions(group=group)
 
-    add_permissions_to_group_by_app_label(
-        group=group, app_label="edc_data_manager")
+    add_permissions_to_group_by_app_label(group=group, app_label="edc_data_manager")
 
     make_view_only_model(group=group, model="edc_data_manager.queryuser")
-    make_view_only_model(
-        group=group, model="edc_data_manager.datamanageruser")
+    make_view_only_model(group=group, model="edc_data_manager.datamanageruser")
     make_view_only_model(group=group, model="edc_data_manager.datadictionary")
-    make_view_only_model(
-        group=group, model="edc_data_manager.queryvisitschedule")
-    make_view_only_model(
-        group=group, model="edc_data_manager.datamanageractionitem")
-    make_view_only_model(
-        group=group, model="edc_data_manager.requisitionpanel")
-    make_view_only_model(
-        group=group, model="edc_data_manager.querysubject")
+    make_view_only_model(group=group, model="edc_data_manager.queryvisitschedule")
+    make_view_only_model(group=group, model="edc_data_manager.datamanageractionitem")
+    make_view_only_model(group=group, model="edc_data_manager.requisitionpanel")
+    make_view_only_model(group=group, model="edc_data_manager.querysubject")
+
+    add_permissions_to_group_by_codenames(group, extra_codenames)
+    remove_historical_group_permissions(group=group)
+
+
+def update_site_data_manager_group_permissions(extra_codenames=None):
+    group_name = SITE_DATA_MANAGER
+    group = Group.objects.get(name=group_name)
+    group.permissions.clear()
+
+    add_edc_navbar_permissions(group=group)
+
+    add_permissions_to_group_by_app_label(group=group, app_label="edc_data_manager")
+
+    make_view_only_model(group=group, model="edc_data_manager.crfqueryrule")
+    make_view_only_model(group=group, model="edc_data_manager.requisitionqueryrule")
+    make_view_only_model(group=group, model="edc_data_manager.queryuser")
+    make_view_only_model(group=group, model="edc_data_manager.datamanageruser")
+    make_view_only_model(group=group, model="edc_data_manager.datadictionary")
+    make_view_only_model(group=group, model="edc_data_manager.queryvisitschedule")
+    make_view_only_model(group=group, model="edc_data_manager.datamanageractionitem")
+    make_view_only_model(group=group, model="edc_data_manager.requisitionpanel")
+    make_view_only_model(group=group, model="edc_data_manager.querysubject")
 
     add_permissions_to_group_by_codenames(group, extra_codenames)
     remove_historical_group_permissions(group=group)
@@ -130,27 +148,21 @@ def update_data_query_group_permissions(extra_codenames=None):
 
     add_edc_navbar_permissions(group=group)
 
-    add_permissions_to_group_by_app_label(
-        group=group, app_label="edc_data_manager")
+    add_permissions_to_group_by_app_label(group=group, app_label="edc_data_manager")
 
     remove_permissions_from_model_by_action(
-        group=group, model="edc_data_manager.dataquery", actions=["add", "delete"])
+        group=group, model="edc_data_manager.dataquery", actions=["add", "delete"]
+    )
 
     make_view_only_model(group=group, model="edc_data_manager.crfqueryrule")
-    make_view_only_model(
-        group=group, model="edc_data_manager.requisitionqueryrule")
+    make_view_only_model(group=group, model="edc_data_manager.requisitionqueryrule")
     make_view_only_model(group=group, model="edc_data_manager.queryuser")
-    make_view_only_model(
-        group=group, model="edc_data_manager.datamanageruser")
+    make_view_only_model(group=group, model="edc_data_manager.datamanageruser")
     make_view_only_model(group=group, model="edc_data_manager.datadictionary")
-    make_view_only_model(
-        group=group, model="edc_data_manager.queryvisitschedule")
-    make_view_only_model(
-        group=group, model="edc_data_manager.datamanageractionitem")
-    make_view_only_model(
-        group=group, model="edc_data_manager.requisitionpanel")
-    make_view_only_model(
-        group=group, model="edc_data_manager.querysubject")
+    make_view_only_model(group=group, model="edc_data_manager.queryvisitschedule")
+    make_view_only_model(group=group, model="edc_data_manager.datamanageractionitem")
+    make_view_only_model(group=group, model="edc_data_manager.requisitionpanel")
+    make_view_only_model(group=group, model="edc_data_manager.querysubject")
 
     add_permissions_to_group_by_codenames(group, extra_codenames)
     remove_historical_group_permissions(group=group)
