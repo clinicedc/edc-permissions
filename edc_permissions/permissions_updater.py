@@ -7,6 +7,7 @@ from .utils import (
     update_account_manager_group_permissions,
     update_administration_group_permissions,
     update_auditor_group_permissions,
+    update_celery_manager_group_permissions,
     update_clinic_group_permissions,
     update_data_manager_group_permissions,
     update_data_query_group_permissions,
@@ -37,27 +38,29 @@ class PermissionsUpdater:
         update_administration_group_permissions()
         sys.stdout.write("  * auditor manager\n")
         update_auditor_group_permissions()
+        sys.stdout.write("  * celery manager\n")
+        update_celery_manager_group_permissions()
         sys.stdout.write("  * clinic\n")
         update_clinic_group_permissions()
-        sys.stdout.write("  * data_manager\n")
+        sys.stdout.write("  * data manager\n")
         update_data_manager_group_permissions()
-        sys.stdout.write("  * site_data_manager\n")
+        sys.stdout.write("  * site data manager\n")
         update_site_data_manager_group_permissions()
-        sys.stdout.write("  * data_query\n")
+        sys.stdout.write("  * data query\n")
         update_data_query_group_permissions()
         sys.stdout.write("  * everyone\n")
         update_everyone_group_permissions()
         sys.stdout.write("  * export\n")
         update_export_group_permissions()
-        sys.stdout.write("  * lab_group\n")
+        sys.stdout.write("  * lab group\n")
         update_lab_group_permissions()
-        sys.stdout.write("  * lab_view\n")
+        sys.stdout.write("  * lab view\n")
         update_lab_view_group_permissions()
         sys.stdout.write("  * pharmacy\n")
         update_pharmacy_group_permissions()
         sys.stdout.write("  * pii\n")
         update_pii_group_permissions(extra_pii_models=extra_pii_models)
-        sys.stdout.write("  * pii_view\n")
+        sys.stdout.write("  * pii view\n")
         update_pii_view_group_permissions(extra_pii_models=extra_pii_models)
 
         sys.stdout.write("  * extras ...\n")

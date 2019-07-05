@@ -9,6 +9,7 @@ from .group_names import (
     PII_VIEW,
     EVERYONE,
     AUDITOR,
+    CELERY_MANAGER,
     CLINIC,
     LAB,
     LAB_VIEW,

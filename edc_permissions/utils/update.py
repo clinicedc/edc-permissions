@@ -5,6 +5,7 @@ from ..constants import (
     ACCOUNT_MANAGER,
     ADMINISTRATION,
     AUDITOR,
+    CELERY_MANAGER,
     CLINIC,
     DATA_MANAGER,
     DATA_QUERY,
@@ -78,6 +79,21 @@ def update_auditor_group_permissions(
     remove_historical_group_permissions(group)
 
     make_view_only_group(group)
+
+
+def update_celery_manager_group_permissions(extra_codenames=None):
+    group_name = CELERY_MANAGER
+    group = Group.objects.get(name=group_name)
+    group.permissions.clear()
+
+    add_permissions_to_group_by_app_label(
+        group=group, app_label="django_celery_results"
+    )
+    add_permissions_to_group_by_app_label(group=group, app_label="django_celery_beat")
+
+    add_permissions_to_group_by_codenames(group, extra_codenames)
+
+    remove_historical_group_permissions(group)
 
 
 def update_clinic_group_permissions(extra_codenames=None):
