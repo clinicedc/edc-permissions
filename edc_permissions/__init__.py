@@ -2,6 +2,7 @@ from .constants import (
     ACCOUNT_MANAGER,
     ADMINISTRATION,
     AUDITOR,
+    CELERY_MANAGER,
     CLINIC,
     DATA_MANAGER,
     EVERYONE,

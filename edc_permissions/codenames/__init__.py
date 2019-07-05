@@ -1,6 +1,7 @@
 from .account_manager import account_manager
 from .administration import administration
 from .auditor import auditor
+from .celery_manager import celery_manager
 from .clinic import clinic
 from .data_manager import data_manager
 from .data_query import data_query

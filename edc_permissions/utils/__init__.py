@@ -44,6 +44,7 @@ from .update import (
     update_account_manager_group_permissions,
     update_administration_group_permissions,
     update_auditor_group_permissions,
+    update_celery_manager_group_permissions,
     update_clinic_group_permissions,
     update_data_manager_group_permissions,
     update_data_query_group_permissions,
