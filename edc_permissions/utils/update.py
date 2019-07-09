@@ -120,6 +120,10 @@ def update_data_manager_group_permissions(extra_codenames=None):
 
     add_edc_navbar_permissions(group=group)
 
+    add_permissions_to_group_by_app_label(group=group, app_label="edc_metadata")
+    make_view_only_model(group=group, model="edc_metadata.crfmetadata")
+    make_view_only_model(group=group, model="edc_metadata.requisitionmetadata")
+
     add_permissions_to_group_by_app_label(group=group, app_label="edc_data_manager")
 
     make_view_only_model(group=group, model="edc_data_manager.queryuser")
