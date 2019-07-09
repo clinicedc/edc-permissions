@@ -25,5 +25,7 @@ data_manager = [
     "edc_data_manager.view_requisitionpanel",
     "edc_data_manager.view_requisitionqueryrule",
     "edc_data_manager.view_visitdatadictionary",
+    "edc_metadata.view_crfmetadata",
+    "edc_metadata.view_requisitionmetadata",
     "edc_navbar.nav_data_manager_section",
 ]
