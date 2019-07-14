@@ -147,8 +147,7 @@ def update_site_data_manager_group_permissions(extra_codenames=None):
 
     add_permissions_to_group_by_app_label(group=group, app_label="edc_data_manager")
 
-    make_view_only_model(group=group, model="edc_data_manager.crfqueryrule")
-    make_view_only_model(group=group, model="edc_data_manager.requisitionqueryrule")
+    make_view_only_model(group=group, model="edc_data_manager.queryrule")
     make_view_only_model(group=group, model="edc_data_manager.queryuser")
     make_view_only_model(group=group, model="edc_data_manager.datamanageruser")
     make_view_only_model(group=group, model="edc_data_manager.datadictionary")
@@ -174,8 +173,7 @@ def update_data_query_group_permissions(extra_codenames=None):
         group=group, model="edc_data_manager.dataquery", actions=["add", "delete"]
     )
 
-    make_view_only_model(group=group, model="edc_data_manager.crfqueryrule")
-    make_view_only_model(group=group, model="edc_data_manager.requisitionqueryrule")
+    make_view_only_model(group=group, model="edc_data_manager.queryrule")
     make_view_only_model(group=group, model="edc_data_manager.queryuser")
     make_view_only_model(group=group, model="edc_data_manager.datamanageruser")
     make_view_only_model(group=group, model="edc_data_manager.datadictionary")
