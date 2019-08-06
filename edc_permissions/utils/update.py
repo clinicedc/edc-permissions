@@ -129,6 +129,9 @@ def update_data_manager_group_permissions(extra_codenames=None):
     make_view_only_model(group=group, model="edc_data_manager.queryuser")
     make_view_only_model(group=group, model="edc_data_manager.datamanageruser")
     make_view_only_model(group=group, model="edc_data_manager.datadictionary")
+    make_view_only_model(
+        group=group, model="edc_data_manager.requisitiondatadictionary"
+    )
     make_view_only_model(group=group, model="edc_data_manager.queryvisitschedule")
     make_view_only_model(group=group, model="edc_data_manager.datamanageractionitem")
     make_view_only_model(group=group, model="edc_data_manager.requisitionpanel")

@@ -3,6 +3,7 @@ edc-action-item
 edc-appointment
 edc-auth
 edc-dashboard
+edc_data_manager
 edc-export
 edc-lab
 edc-lab-dashboard
