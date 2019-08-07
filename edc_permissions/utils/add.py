@@ -36,6 +36,13 @@ def add_edc_appointment_permissions(group):
     group.permissions.remove(permission)
 
 
+def add_edc_adverse_event_permissions(group, view_only=None, allow_delete=None):
+    permissions = Permission.objects.filter(content_type__app_label="edc_adverse_event")
+    for permission in permissions:
+        group.permissions.add(permission)
+    make_view_only_app_label(group, "edc_adverse_event")
+
+
 def add_edc_offstudy_permissions(group):
     for permission in Permission.objects.filter(content_type__app_label="edc_offstudy"):
         group.permissions.add(permission)

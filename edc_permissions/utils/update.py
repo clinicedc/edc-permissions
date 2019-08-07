@@ -19,11 +19,11 @@ from ..constants import (
 from ..utils import (
     make_view_only_group,
     make_view_only_model,
-    make_view_only_app_label,
     add_permissions_to_group_by_app_label,
     remove_historical_group_permissions,
     add_permissions_to_group_by_codenames,
     add_edc_action_permissions,
+    add_edc_adverse_event_permissions,
     add_edc_appointment_permissions,
     add_edc_offstudy_permissions,
     add_edc_dashboard_permissions,
@@ -73,6 +73,7 @@ def update_auditor_group_permissions(
     add_edc_offstudy_permissions(group)
     add_edc_dashboard_permissions(group)
     add_edc_navbar_permissions(group=group)
+    add_edc_adverse_event_permissions(group=group)
 
     add_permissions_to_group_by_codenames(group, extra_codenames)
 
@@ -101,6 +102,7 @@ def update_clinic_group_permissions(extra_codenames=None):
     group = Group.objects.get(name=group_name)
     group.permissions.clear()
 
+    add_edc_adverse_event_permissions(group=group)
     add_edc_appointment_permissions(group)
     add_edc_offstudy_permissions(group)
     add_edc_action_permissions(group, view_only=True, allow_delete=True)

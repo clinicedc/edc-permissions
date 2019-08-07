@@ -1,5 +1,6 @@
 from .add import (
     add_edc_action_permissions,
+    add_edc_adverse_event_permissions,
     add_edc_appointment_permissions,
     add_edc_offstudy_permissions,
     add_review_listboard_permissions,
