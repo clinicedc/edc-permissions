@@ -3,7 +3,7 @@ site_data_manager = [
     "edc_data_manager.change_dataquery",
     "edc_data_manager.delete_dataquery",
     "edc_data_manager.view_crfdatadictionary",
-    "edc_data_manager.view_crfqueryrule",
+    "edc_data_manager.view_queryrule",
     "edc_data_manager.view_datadictionary",
     "edc_data_manager.view_datamanageractionitem",
     "edc_data_manager.view_datamanageruser",
