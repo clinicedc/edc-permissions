@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import Group
 
 from ..constants import PII, PII_VIEW
@@ -20,6 +21,16 @@ def update_pii_group_permissions(extra_pii_models=None):
     group_name = PII
     group = Group.objects.get(name=group_name)
     group.permissions.clear()
+
+    extra_pii_models = extra_pii_models or []
+    extra_pii_models.extend(
+        [
+            settings.SUBJECT_CONSENT_MODEL,
+            ".historical".join(settings.SUBJECT_CONSENT_MODEL.split()),
+        ]
+    )
+    extra_pii_models = list(set(extra_pii_models))
+
     updater = PiiUpdater(extra_pii_models=extra_pii_models)
     updater.add_pii_permissions(group)
     remove_historical_group_permissions(group)
@@ -29,6 +40,15 @@ def update_pii_view_group_permissions(extra_pii_models=None):
     group_name = PII_VIEW
     group = Group.objects.get(name=group_name)
     group.permissions.clear()
+
+    extra_pii_models = extra_pii_models or []
+    extra_pii_models.extend(
+        [
+            settings.SUBJECT_CONSENT_MODEL,
+            ".historical".join(settings.SUBJECT_CONSENT_MODEL.split()),
+        ]
+    )
+    extra_pii_models = list(set(extra_pii_models))
     updater = PiiUpdater(extra_pii_models=extra_pii_models)
     updater.add_pii_permissions(group, view_only=True)
     remove_historical_group_permissions(group)

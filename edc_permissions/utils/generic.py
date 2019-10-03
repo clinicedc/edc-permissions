@@ -128,9 +128,16 @@ def get_permissions_from_codenames(codenames):
     permissions = []
     for dotted_codename in codenames:
         app_label, codename = get_from_dotted_codename(dotted_codename)
-        permissions.append(
-            Permission.objects.get(codename=codename, content_type__app_label=app_label)
-        )
+        try:
+            permissions.append(
+                Permission.objects.get(
+                    codename=codename, content_type__app_label=app_label
+                )
+            )
+        except ObjectDoesNotExist as e:
+            raise ObjectDoesNotExist(
+                f"{e}. Got codename={codename},app_label={app_label}"
+            )
     return permissions
 
 

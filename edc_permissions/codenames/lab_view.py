@@ -2,8 +2,13 @@ from django.conf import settings
 
 view_subjectrequisition = ".view_".join(settings.SUBJECT_REQUISITION_MODEL.split("."))
 
+view_historicalsubjectrequisition = ".view_historical".join(
+    settings.SUBJECT_REQUISITION_MODEL.split(".")
+)
+
 lab_view = [
     view_subjectrequisition,
+    view_historicalsubjectrequisition,
     "edc_dashboard.view_lab_aliquot_listboard",
     "edc_dashboard.view_lab_box_listboard",
     "edc_dashboard.view_lab_manifest_listboard",
