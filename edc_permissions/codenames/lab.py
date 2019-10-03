@@ -1,13 +1,23 @@
 from django.conf import settings
 
 view_subjectrequisition = ".view_".join(settings.SUBJECT_REQUISITION_MODEL.split("."))
+view_historicalsubjectrequisition = ".view_historical".join(
+    settings.SUBJECT_REQUISITION_MODEL.split(".")
+)
+add_subjectrequisition = ".add_".join(settings.SUBJECT_REQUISITION_MODEL.split("."))
 change_subjectrequisition = ".change_".join(
+    settings.SUBJECT_REQUISITION_MODEL.split(".")
+)
+delete_subjectrequisition = ".delete_".join(
     settings.SUBJECT_REQUISITION_MODEL.split(".")
 )
 
 lab = [
     view_subjectrequisition,
+    view_historicalsubjectrequisition,
+    add_subjectrequisition,
     change_subjectrequisition,
+    delete_subjectrequisition,
     "edc_dashboard.view_lab_aliquot_listboard",
     "edc_dashboard.view_lab_box_listboard",
     "edc_dashboard.view_lab_manifest_listboard",

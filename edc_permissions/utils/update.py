@@ -31,6 +31,9 @@ from ..utils import (
     add_edc_reference_permissions,
     remove_permissions_from_model_by_action,
 )
+from edc_permissions.utils.generic import add_permissions_to_group_by_model
+from edc_lab.models import get_requisition_model
+from django.conf import settings
 
 
 def update_account_manager_group_permissions(extra_codenames=None):
@@ -245,6 +248,10 @@ def update_lab_group_permissions(extra_codenames=None):
     group.permissions.clear()
 
     add_permissions_to_group_by_app_label(group, "edc_lab")
+    add_permissions_to_group_by_model(group, settings.SUBJECT_REQUISITION_MODEL)
+    add_permissions_to_group_by_model(
+        group, ".historical".join(settings.SUBJECT_REQUISITION_MODEL.split("."))
+    )
     add_edc_dashboard_permissions(group)
     add_edc_navbar_permissions(group=group)
     add_permissions_to_group_by_codenames(group, extra_codenames)
@@ -258,6 +265,10 @@ def update_lab_view_group_permissions(extra_codenames=None):
     group.permissions.clear()
 
     add_permissions_to_group_by_app_label(group, "edc_lab")
+    add_permissions_to_group_by_model(group, settings.SUBJECT_REQUISITION_MODEL)
+    add_permissions_to_group_by_model(
+        group, ".historical".join(settings.SUBJECT_REQUISITION_MODEL.split("."))
+    )
     add_edc_dashboard_permissions(group)
     add_edc_navbar_permissions(group=group)
     add_permissions_to_group_by_codenames(group, extra_codenames)

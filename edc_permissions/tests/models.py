@@ -1,4 +1,5 @@
 from django.db import models
+from edc_model.models import HistoricalRecords
 
 
 class PiiModel(models.Model):
@@ -15,3 +16,10 @@ class AuditorModel(models.Model):
 
     class Meta:
         permissions = (("be_sad", "Can be sad"),)
+
+
+class SubjectRequisition(models.Model):
+
+    name = models.CharField(max_length=50, null=True)
+
+    history = HistoricalRecords()
