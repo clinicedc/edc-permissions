@@ -266,7 +266,7 @@ def remove_permissions_from_model_by_action(group=None, model=None, actions=None
     content_type = ContentType.objects.get_for_model(model_cls)
     for action in actions:
         for permission in Permission.objects.filter(
-            content_type=content_type, codename__startswith=action
+            content_type=content_type, codename__endswith=action
         ):
             group.permissions.remove(permission)
 
