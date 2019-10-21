@@ -13,3 +13,4 @@ from .pharmacy import pharmacy
 from .pii import pii
 from .pii_view import pii_view
 from .site_data_manager import site_data_manager
+from .tmg import tmg
