@@ -1,6 +1,8 @@
-from django.contrib.auth.models import Group, Permission
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group, Permission
 
+from ..codenames import rando
 from ..constants import (
     ACCOUNT_MANAGER,
     ADMINISTRATION,
@@ -15,6 +17,7 @@ from ..constants import (
     LAB_VIEW,
     PHARMACY,
     SITE_DATA_MANAGER,
+    RANDO,
 )
 from ..utils import (
     make_view_only_group,
@@ -32,8 +35,6 @@ from ..utils import (
     remove_permissions_from_model_by_action,
 )
 from edc_permissions.utils.generic import add_permissions_to_group_by_model
-from edc_lab.models import get_requisition_model
-from django.conf import settings
 
 
 def update_account_manager_group_permissions(extra_codenames=None):
@@ -287,3 +288,11 @@ def update_pharmacy_group_permissions(extra_codenames=None):
     add_edc_navbar_permissions(group=group)
     add_permissions_to_group_by_codenames(group, extra_codenames)
     remove_historical_group_permissions(group)
+
+
+def update_rando_group_permissions():
+    group_name = RANDO
+    group = Group.objects.get(name=group_name)
+    group.permissions.clear()
+    add_permissions_to_group_by_codenames(group, rando)
+    return group_name
