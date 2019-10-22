@@ -19,6 +19,7 @@ from .utils import (
     update_pii_group_permissions,
     update_pii_view_group_permissions,
     update_site_data_manager_group_permissions,
+    update_rando_group_permissions,
 )
 
 
@@ -62,6 +63,8 @@ class PermissionsUpdater:
         update_pii_group_permissions(extra_pii_models=extra_pii_models)
         sys.stdout.write("  * pii view\n")
         update_pii_view_group_permissions(extra_pii_models=extra_pii_models)
+        sys.stdout.write("  * rando\n")
+        update_rando_group_permissions()
 
         sys.stdout.write("  * extras ...\n")
         for updater in extra_updaters or []:
