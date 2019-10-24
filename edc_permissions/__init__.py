@@ -1,4 +1,5 @@
-from .constants import (
+from .default_codenames_by_group import default_codenames_by_group
+from .group_names import (
     ACCOUNT_MANAGER,
     ADMINISTRATION,
     AE,

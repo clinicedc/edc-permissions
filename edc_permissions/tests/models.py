@@ -23,3 +23,10 @@ class SubjectRequisition(models.Model):
     name = models.CharField(max_length=50, null=True)
 
     history = HistoricalRecords()
+
+
+class SubjectConsent(models.Model):
+
+    name = models.CharField(max_length=50, null=True)
+
+    history = HistoricalRecords()
