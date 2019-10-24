@@ -10,8 +10,10 @@ dashboard_tuples = [
     ("edc_dashboard.view_lab_box_listboard", "Can view Lab box listboard"),
     ("edc_dashboard.view_lab_result_listboard", "Can view Lab result listboard"),
     ("edc_dashboard.view_lab_manifest_listboard", "Can view Lab manifest listboard"),
-    ("edc_dashboard.view_subject_review_listboard",
-     "Can view Subject review listboard"),
+    (
+        "edc_dashboard.view_subject_review_listboard",
+        "Can view Subject review listboard",
+    ),
     ("edc_dashboard.view_ae_listboard", "Can view AE listboard"),
     ("edc_dashboard.view_screening_listboard", "Can view Screening listboard"),
     ("edc_dashboard.view_subject_listboard", "Can view Subject listboard"),

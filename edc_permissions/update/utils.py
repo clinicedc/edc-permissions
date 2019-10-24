@@ -61,8 +61,7 @@ def create_permissions_from_tuples(model, codename_tpls):
                     codename_tpl, model_cls._meta.app_label
                 )
                 try:
-                    Permission.objects.get(
-                        codename=codename, content_type=content_type)
+                    Permission.objects.get(codename=codename, content_type=content_type)
                 except ObjectDoesNotExist:
                     Permission.objects.create(
                         name=name, codename=codename, content_type=content_type
@@ -263,14 +262,24 @@ def remove_codenames_for_app_labels(codenames_by_group, excluded_app_labels=None
                 app_labels.append(app_label)
 
         installed_app_labels = list(
-            set([a.split(".")[0] for a in settings.INSTALLED_APPS]))
-        excluded_app_labels = list(set(
-            [app_label for app_label in app_labels if app_label not in installed_app_labels]))
+            set([a.split(".")[0] for a in settings.INSTALLED_APPS])
+        )
+        excluded_app_labels = list(
+            set(
+                [
+                    app_label
+                    for app_label in app_labels
+                    if app_label not in installed_app_labels
+                ]
+            )
+        )
         excluded_app_labels.remove("auth")
         excluded_app_labels.remove("sites")
         excluded_app_labels.remove("admin")
-        warn(f"Removing codenames for apps that are not installed. "
-             f"Got {', '.join(excluded_app_labels)}. See edc_permissions.")
+        warn(
+            f"Removing codenames for apps that are not installed. "
+            f"Got {', '.join(excluded_app_labels)}. See edc_permissions."
+        )
 
     if excluded_app_labels:
         codenames_by_group_copy = {k: v for k, v in codenames_by_group.items()}
@@ -282,3 +291,25 @@ def remove_codenames_for_app_labels(codenames_by_group, excluded_app_labels=None
                         codenames.remove(codename)
             codenames_by_group[group_name] = codenames
     return codenames_by_group
+
+
+def compare_codenames_for_group(group_name=None, expected=None):
+    group = Group.objects.get(name=group_name)
+    codenames = [p.codename for p in group.permissions.all()]
+
+    new_expected = []
+    for c in expected:
+        try:
+            c = c.split(".")[1]
+        except IndexError:
+            pass
+        new_expected.append(c)
+
+    compared = [c for c in new_expected if c not in codenames]
+    if compared:
+        print(group.name, "missing from codenames")
+        pprint(compared)
+    compared = [c for c in codenames if c not in new_expected]
+    if compared:
+        print(group.name, "extra codenames")
+        pprint(compared)
