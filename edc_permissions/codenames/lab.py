@@ -1,12 +1,10 @@
 from django.conf import settings
 
-view_subjectrequisition = ".view_".join(
-    settings.SUBJECT_REQUISITION_MODEL.split("."))
+view_subjectrequisition = ".view_".join(settings.SUBJECT_REQUISITION_MODEL.split("."))
 view_historicalsubjectrequisition = ".view_historical".join(
     settings.SUBJECT_REQUISITION_MODEL.split(".")
 )
-add_subjectrequisition = ".add_".join(
-    settings.SUBJECT_REQUISITION_MODEL.split("."))
+add_subjectrequisition = ".add_".join(settings.SUBJECT_REQUISITION_MODEL.split("."))
 change_subjectrequisition = ".change_".join(
     settings.SUBJECT_REQUISITION_MODEL.split(".")
 )
