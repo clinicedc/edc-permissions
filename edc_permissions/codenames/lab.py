@@ -1,10 +1,12 @@
 from django.conf import settings
 
-view_subjectrequisition = ".view_".join(settings.SUBJECT_REQUISITION_MODEL.split("."))
+view_subjectrequisition = ".view_".join(
+    settings.SUBJECT_REQUISITION_MODEL.split("."))
 view_historicalsubjectrequisition = ".view_historical".join(
     settings.SUBJECT_REQUISITION_MODEL.split(".")
 )
-add_subjectrequisition = ".add_".join(settings.SUBJECT_REQUISITION_MODEL.split("."))
+add_subjectrequisition = ".add_".join(
+    settings.SUBJECT_REQUISITION_MODEL.split("."))
 change_subjectrequisition = ".change_".join(
     settings.SUBJECT_REQUISITION_MODEL.split(".")
 )
@@ -12,12 +14,8 @@ delete_subjectrequisition = ".delete_".join(
     settings.SUBJECT_REQUISITION_MODEL.split(".")
 )
 
-lab = [
-    view_subjectrequisition,
-    view_historicalsubjectrequisition,
-    add_subjectrequisition,
-    change_subjectrequisition,
-    delete_subjectrequisition,
+
+lab_dashboard = [
     "edc_dashboard.view_lab_aliquot_listboard",
     "edc_dashboard.view_lab_box_listboard",
     "edc_dashboard.view_lab_manifest_listboard",
@@ -26,6 +24,27 @@ lab = [
     "edc_dashboard.view_lab_receive_listboard",
     "edc_dashboard.view_lab_requisition_listboard",
     "edc_dashboard.view_lab_result_listboard",
+    "edc_dashboard.view_screening_listboard",
+    "edc_dashboard.view_subject_listboard",
+    "edc_dashboard.view_subject_review_listboard",
+]
+
+lab_navbar = [
+    "edc_navbar.nav_lab_aliquot",
+    "edc_navbar.nav_lab_manifest",
+    "edc_navbar.nav_lab_pack",
+    "edc_navbar.nav_lab_process",
+    "edc_navbar.nav_lab_receive",
+    "edc_navbar.nav_lab_requisition",
+    "edc_navbar.nav_lab_section",
+]
+
+lab = [
+    view_subjectrequisition,
+    view_historicalsubjectrequisition,
+    add_subjectrequisition,
+    change_subjectrequisition,
+    delete_subjectrequisition,
     "edc_lab.add_aliquot",
     "edc_lab.add_box",
     "edc_lab.add_boxitem",
@@ -91,3 +110,6 @@ lab = [
     "edc_navbar.nav_lab_requisition",
     "edc_navbar.nav_lab_section",
 ]
+
+lab.extend(lab_dashboard)
+lab.extend(lab_navbar)
