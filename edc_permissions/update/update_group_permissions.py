@@ -21,7 +21,10 @@ style = color_style()
 
 
 def update_group_permissions(
-    codenames_by_group=None, verbose=None, excluded_app_labels=None
+    codenames_by_group=None,
+    verbose=None,
+    excluded_app_labels=None,
+    attempt_exclude=None,
 ):
     if verbose:
         sys.stdout.write(style.MIGRATE_HEADING("Updating group permissions:\n"))
@@ -29,9 +32,10 @@ def update_group_permissions(
     codenames_by_group = codenames_by_group or {}
     codenames_by_group.update(**default_codenames_by_group)
 
-    codenames_by_group = remove_codenames_for_app_labels(
-        codenames_by_group, excluded_app_labels=excluded_app_labels
-    )
+    if attempt_exclude or excluded_app_labels:
+        codenames_by_group = remove_codenames_for_app_labels(
+            codenames_by_group, excluded_app_labels=excluded_app_labels
+        )
 
     create_or_update_groups(list(codenames_by_group.keys()))
     create_edc_dashboard_permissions()
