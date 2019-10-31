@@ -17,7 +17,3 @@ navbars = [
     "edc_navbar.nav_subject_section",
     "edc_navbar.nav_tmg_section",
 ]
-
-navbar_tuples = []
-for codename in navbars:
-    navbar_tuples.append((codename, f"Can access {codename.split('.')[1]}"))

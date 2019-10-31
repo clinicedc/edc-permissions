@@ -1,16 +1,9 @@
 from django.conf import settings
 
+from .action_items import action_items
 from .ae_review import ae_review
 
 tmg = [
-    "edc_action_item.add_actionitem",
-    "edc_action_item.change_actionitem",
-    "edc_action_item.delete_actionitem",
-    "edc_action_item.view_actionitem",
-    "edc_action_item.view_actiontype",
-    "edc_action_item.view_historicalactionitem",
-    "edc_action_item.view_historicalreference",
-    "edc_action_item.view_reference",
     "edc_appointment.view_appointment",
     "edc_appointment.view_historicalappointment",
     "edc_dashboard.view_screening_listboard",
@@ -41,3 +34,4 @@ tmg = [
 ]
 
 tmg.extend([c for c in ae_review])
+tmg.extend(action_items)

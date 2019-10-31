@@ -1,4 +1,5 @@
 pharmacy = [
+    "edc_navbar.nav_pharmacy_section",
     "edc_pharmacy.add_appointment",
     "edc_pharmacy.add_dispenseditem",
     "edc_pharmacy.add_dosageguideline",
@@ -17,7 +18,6 @@ pharmacy = [
     "edc_pharmacy.delete_medication",
     "edc_pharmacy.delete_prescription",
     "edc_pharmacy.delete_prescriptionitem",
-    "edc_navbar.nav_pharmacy_section",
     "edc_pharmacy.view_appointment",
     "edc_pharmacy.view_dispenseditem",
     "edc_pharmacy.view_dosageguideline",
