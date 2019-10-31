@@ -1,6 +1,3 @@
-rando_tuples = [
-    ("edc_randomization.display_assignment", "Can display randomization assignment"),
-    ("edc_randomization.view_randomizationlist", "Can view randomization list"),
-]
+from ..codename_tuples import rando_tuples
 
 rando = [c[0] for c in rando_tuples]

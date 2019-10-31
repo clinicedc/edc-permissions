@@ -13,7 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 from pprint import pprint
 from warnings import warn
 
-from ..codenames import navbar_tuples, dashboard_tuples, rando_tuples
+from ..codename_tuples import navbar_tuples, dashboard_tuples, rando_tuples
 
 INVALID_APP_LABEL = "invalid_app_label"
 
